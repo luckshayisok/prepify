@@ -232,3 +232,67 @@ test("dashboard, history, leaderboard, ownership", async () => {
   const badId = await api("/interviews/not-an-id", { token });
   assert.equal(badId.status, 404);
 });
+
+test("google sign-in: create, link existing account, password rules", async () => {
+  const { setGoogleVerifier } = await import("../services/google.js");
+  const profiles = {
+    "new-user": { sub: "g-1", email: "Fresh@Gmail.com", email_verified: true, name: "Fresh Person", picture: "https://example.com/a.png" },
+    existing: { sub: "g-2", email: "test@example.com", email_verified: true, name: "Test User" },
+    unverified: { sub: "g-3", email: "x@example.com", email_verified: false },
+  };
+  setGoogleVerifier(async (credential) => {
+    if (!profiles[credential]) throw Object.assign(new Error("bad"), { status: 401 });
+    return profiles[credential];
+  });
+
+  try {
+    const created = await api("/auth/google", { method: "POST", body: { credential: "new-user" } });
+    assert.equal(created.status, 201);
+    assert.equal(created.data.created, true);
+    assert.equal(created.data.user.email, "fresh@gmail.com");
+    assert.equal(created.data.user.googleLinked, true);
+    assert.equal(created.data.user.hasPassword, false);
+    assert.equal(created.data.user.avatarUrl, "https://example.com/a.png");
+
+    const again = await api("/auth/google", { method: "POST", body: { credential: "new-user" } });
+    assert.equal(again.status, 200);
+    assert.equal(again.data.user.id, created.data.user.id);
+
+    // Password login on a Google-only account explains what to do.
+    const pw = await api("/auth/login", { method: "POST", body: { email: "fresh@gmail.com", password: "whatever1" } });
+    assert.equal(pw.status, 401);
+    assert.match(pw.data.message, /Google/);
+
+    // Setting a first password needs no current password; then password login works.
+    const set = await api("/auth/me/password", { method: "PUT", token: created.data.accessToken, body: { newPassword: "brand-new-pass" } });
+    assert.equal(set.status, 200);
+    assert.equal(set.data.user.hasPassword, true);
+    const login = await api("/auth/login", { method: "POST", body: { email: "fresh@gmail.com", password: "brand-new-pass" } });
+    assert.equal(login.status, 200);
+
+    // Changing it requires the current password.
+    const noCurrent = await api("/auth/me/password", { method: "PUT", token: created.data.accessToken, body: { newPassword: "another-pass" } });
+    assert.equal(noCurrent.status, 400);
+    const wrongCurrent = await api("/auth/me/password", {
+      method: "PUT",
+      token: created.data.accessToken,
+      body: { currentPassword: "nope-nope", newPassword: "another-pass" },
+    });
+    assert.equal(wrongCurrent.status, 400);
+
+    // Existing email/password account gets linked, not duplicated, and keeps its XP.
+    const linked = await api("/auth/google", { method: "POST", body: { credential: "existing" } });
+    assert.equal(linked.status, 200);
+    assert.equal(linked.data.user.name, "Test User");
+    assert.equal(linked.data.user.googleLinked, true);
+    assert.equal(linked.data.user.hasPassword, true);
+    assert.ok(linked.data.user.xp > 0);
+
+    const unverified = await api("/auth/google", { method: "POST", body: { credential: "unverified" } });
+    assert.equal(unverified.status, 401);
+    const invalid = await api("/auth/google", { method: "POST", body: { credential: "forged" } });
+    assert.equal(invalid.status, 401);
+  } finally {
+    setGoogleVerifier(null);
+  }
+});

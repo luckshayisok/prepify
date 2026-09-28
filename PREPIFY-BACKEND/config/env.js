@@ -17,6 +17,7 @@ export const env = {
   jwtSecret: process.env.JWT_SECRET,
   jwtRefreshSecret: process.env.JWT_REFRESH_SECRET,
   corsOrigins: list(process.env.CORS_ORIGINS, DEFAULT_ORIGINS),
+  googleClientId: process.env.GOOGLE_CLIENT_ID,
   geminiApiKey: process.env.GEMINI_API_KEY,
   geminiModel: process.env.GEMINI_MODEL || "gemini-2.5-flash",
   // Returns canned AI output instead of calling Gemini. For local dev and tests only.
