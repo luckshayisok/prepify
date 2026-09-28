@@ -1,36 +1,15 @@
-import dotenv from 'dotenv';
-dotenv.config();
-import express from 'express';
-import cors from 'cors';
-import interviewRoutes from './routes/interviewRoutes.js';
-import storeResponsesRoutes from './routes/storeResponses.js';
-import analysisRoutes from './routes/analysis.js';
-import protectedRoutes from './routes/protected.js';
-import auth from './routes/Auth.js'
+import { assertRequiredEnv, env } from "./config/env.js";
+import { connectDB } from "./config/db.js";
+import { createApp } from "./app.js";
 
+try {
+  assertRequiredEnv();
+  await connectDB();
+} catch (err) {
+  console.error("❌ Failed to start:", err.message);
+  process.exit(1);
+}
 
-
-
-const app = express();
-const PORT = process.env.PORT || 5000;
-
-// Middleware
-app.use(cors({
-  origin: 'https://prepify-chi.vercel.app', // your Vercel frontend domain
-  credentials: true
-}));
-app.use(express.json());
-app.use('/api', storeResponsesRoutes);
-app.use('/api', analysisRoutes);
-
-app.use("/api/interview/", interviewRoutes);
-app.use("/api", protectedRoutes);
-app.use("api/auth",auth);
-
-app.get('/', (req, res) => {
-  res.send('Prepify backend is running');
-});
-
-app.listen(PORT, () => {
-  console.log(`🚀 Server running at http://localhost:${PORT}`);
+createApp().listen(env.port, () => {
+  console.log(`🚀 Server running at http://localhost:${env.port}`);
 });

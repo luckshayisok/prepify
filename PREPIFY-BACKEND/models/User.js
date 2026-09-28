@@ -1,8 +1,65 @@
 import mongoose from "mongoose";
-const userSchema = new mongoose.Schema({
-  name: String,
-  email: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
-});
+
+const badgeSchema = new mongoose.Schema(
+  { id: { type: String, required: true }, earnedAt: { type: Date, default: Date.now } },
+  { _id: false }
+);
+
+const resumeSchema = new mongoose.Schema(
+  {
+    fileName: String,
+    text: String,
+    summary: String,
+    skills: [String],
+    projects: [String],
+    experienceLevel: String,
+    suggestedRoles: [String],
+    gaps: [String],
+    uploadedAt: Date,
+  },
+  { _id: false }
+);
+
+const userSchema = new mongoose.Schema(
+  {
+    name: { type: String, required: true, trim: true, maxlength: 60 },
+    email: { type: String, required: true, unique: true, lowercase: true, trim: true },
+    password: { type: String, required: true, select: false },
+    targetRole: { type: String, trim: true, maxlength: 80, default: "" },
+    xp: { type: Number, default: 0 },
+    level: { type: Number, default: 1 },
+    streak: {
+      current: { type: Number, default: 0 },
+      longest: { type: Number, default: 0 },
+      lastActiveDay: { type: String, default: null }, // YYYY-MM-DD (UTC)
+    },
+    badges: { type: [badgeSchema], default: [] },
+    solvedProblems: { type: [String], default: [] },
+    resume: { type: resumeSchema, default: null },
+  },
+  { timestamps: true }
+);
+
+userSchema.index({ xp: -1 });
+
+userSchema.methods.toPublic = function toPublic() {
+  return {
+    id: this._id,
+    name: this.name,
+    email: this.email,
+    targetRole: this.targetRole,
+    xp: this.xp,
+    level: this.level,
+    streak: {
+      current: this.streak?.current ?? 0,
+      longest: this.streak?.longest ?? 0,
+      lastActiveDay: this.streak?.lastActiveDay ?? null,
+    },
+    badges: this.badges,
+    solvedProblems: this.solvedProblems,
+    hasResume: Boolean(this.resume?.text),
+    createdAt: this.createdAt,
+  };
+};
 
 export default mongoose.model("User", userSchema);
