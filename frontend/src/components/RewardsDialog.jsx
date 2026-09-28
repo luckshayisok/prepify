@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { ProgressBar } from "@/components/common";
 import { useBadgeCatalog } from "@/hooks/useBadgeCatalog";
 import { celebrate } from "@/lib/celebrate";
+import BadgeArt from "@/components/icons/BadgeArt";
 
 // Shown after any completed session: XP gained, level-ups and new badges.
 export default function RewardsDialog({ rewards, score, open, onOpenChange }) {
@@ -59,7 +60,7 @@ export default function RewardsDialog({ rewards, score, open, onOpenChange }) {
                 transition={{ delay: 0.25 + i * 0.1 }}
                 className="flex items-center gap-3 rounded-lg border bg-card p-2.5 text-left"
               >
-                <span className="text-2xl">{b.icon}</span>
+                <BadgeArt id={b.id} size={36} />
                 <span>
                   <span className="block text-sm font-medium">{b.name}</span>
                   <span className="block text-xs text-muted-foreground">{b.description}</span>

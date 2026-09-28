@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { CheckCircle2, ChevronRight, Circle } from "lucide-react";
+import { CheckCircle2, ChevronRight, Circle } from "@/components/icons";
 import { ErrorState, LevelBadge, Page, PageHeader, PageSkeleton, ProgressBar, SegmentedControl } from "@/components/common";
 import { api, errorMessage } from "@/lib/api";
 

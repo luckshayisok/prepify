@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ChevronRight, Sparkles } from "lucide-react";
+import { ChevronRight, Sparkles } from "@/components/icons";
 import { LevelBadge, ModeBadge } from "./common";
 import { scoreTone, timeAgo } from "@/lib/format";
 import { cn } from "@/lib/utils";

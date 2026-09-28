@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import Editor from "@monaco-editor/react";
-import { Check, CheckCircle2, EyeOff, Loader2, Play, RotateCcw, Send, Terminal, X } from "lucide-react";
+import { Check, CheckCircle2, EyeOff, Loader2, Play, RotateCcw, Send, Terminal, X } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { ErrorState, LevelBadge, Spinner } from "@/components/common";
 import { Tooltip } from "@/components/ui/tooltip";

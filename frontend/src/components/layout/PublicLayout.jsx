@@ -1,5 +1,5 @@
 import { Link, Outlet } from "react-router-dom";
-import { Monitor, Moon, Sun } from "lucide-react";
+import { Monitor, Moon, Sun } from "@/components/icons";
 import { Logo } from "@/components/common";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";

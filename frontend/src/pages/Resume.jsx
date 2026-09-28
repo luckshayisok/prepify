@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { AlertTriangle, ArrowUpRight, Brain, CheckCircle2, FileText, FolderGit2, Loader2, Mic, Trash2, UploadCloud } from "lucide-react";
+import { AlertTriangle, ArrowUpRight, Brain, CheckCircle2, FileText, FolderGit2, Loader2, Mic, Trash2, UploadCloud } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Alert, Field, Page, PageHeader, PageSkeleton, Section, SegmentedControl } from "@/components/common";
@@ -158,7 +158,7 @@ export default function Resume() {
       const b = catalog[id];
       if (b) {
         celebrate();
-        toast({ title: `${b.icon} Badge unlocked: ${b.name}`, description: b.description });
+        toast({ title: `Badge unlocked: ${b.name}`, description: b.description });
       }
     }
   };

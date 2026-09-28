@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Check, Loader2, Lock, Monitor, Moon, Sun } from "lucide-react";
+import { Check, Loader2, Lock, Monitor, Moon, Sun } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Alert, Avatar, Field, Page, PageHeader, ProgressBar, Section, SegmentedControl } from "@/components/common";
@@ -9,6 +9,7 @@ import { useBadgeList } from "@/hooks/useBadgeCatalog";
 import { api, errorMessage } from "@/lib/api";
 import { formatDate } from "@/lib/format";
 import { cn } from "@/lib/utils";
+import BadgeArt from "@/components/icons/BadgeArt";
 
 function GoogleMark() {
   return (
@@ -211,14 +212,14 @@ export default function Settings() {
             </div>
             <ProgressBar value={user.progress.pct} />
           </div>
-          <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3">
+          <div className="grid grid-cols-1 gap-2.5 min-[420px]:grid-cols-2 md:grid-cols-3">
             {badges.map((b) => {
               const at = earned.get(b.id);
               return (
-                <div key={b.id} className={cn("flex items-start gap-3 rounded-lg border p-3", !at && "opacity-50")}>
-                  <span className={cn("text-2xl leading-none", !at && "grayscale")}>{b.icon}</span>
+                <div key={b.id} className="flex items-center gap-3 rounded-lg border p-3">
+                  <BadgeArt id={b.id} earned={Boolean(at)} size={40} />
                   <div className="min-w-0">
-                    <p className="text-sm font-medium">{b.name}</p>
+                    <p className={cn("text-sm font-medium", !at && "text-muted-foreground")}>{b.name}</p>
                     <p className="text-xs text-muted-foreground">{at ? `Earned ${formatDate(at, { month: "short", day: "numeric" })}` : b.description}</p>
                   </div>
                 </div>

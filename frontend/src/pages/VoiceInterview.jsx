@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "framer-motion";
-import { Bot, Headphones, Loader2, Mic, MicOff, PhoneOff, Sparkles, User } from "lucide-react";
+import { Bot, Headphones, Loader2, Mic, MicOff, PhoneOff, Sparkles, User } from "@/components/icons";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";

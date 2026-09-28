@@ -17,7 +17,7 @@ import {
   ThumbsUp,
   User,
   X,
-} from "lucide-react";
+} from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { ErrorState, LevelBadge, ModeBadge, Page, PageSkeleton, ProgressBar, ScoreRing, Section, SegmentedControl } from "@/components/common";
 import RewardsDialog from "@/components/RewardsDialog";

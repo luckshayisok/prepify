@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { NavLink, Outlet, useLocation } from "react-router-dom";
-import { Brain, Code2, FileText, Flame, History, LayoutDashboard, Menu, Mic, Trophy, X } from "lucide-react";
+import { Brain, Code2, FileText, Flame, History, LayoutDashboard, Menu, Mic, Trophy, X } from "@/components/icons";
 import { Logo, ProgressBar } from "@/components/common";
 import { Tooltip } from "@/components/ui/tooltip";
 import { useAuth } from "@/context/AuthContext";

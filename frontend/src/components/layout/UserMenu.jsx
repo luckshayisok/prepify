@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
-import { ChevronsUpDown, LogOut, Monitor, Moon, Settings, Sun } from "lucide-react";
+import { ChevronsUpDown, LogOut, Monitor, Moon, Settings, Sun } from "@/components/icons";
 import {
   DropdownMenu,
   DropdownMenuContent,

@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { Award, Flame, Trophy } from "lucide-react";
+import { Award, Flame, Trophy } from "@/components/icons";
 import { Avatar, EmptyState, ErrorState, Page, PageHeader, PageSkeleton } from "@/components/common";
 import { api, errorMessage } from "@/lib/api";
 import { cn } from "@/lib/utils";

@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ArrowRight, Brain, Check, Code2, FileText, Flame, LineChart, Mic, Trophy } from "lucide-react";
+import { ArrowRight, Brain, Check, Code2, FileText, Flame, LineChart, Mic, Trophy } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Logo, ProgressBar } from "@/components/common";
 import { useAuth } from "@/context/AuthContext";

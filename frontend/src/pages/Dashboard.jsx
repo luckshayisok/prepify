@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowRight, ArrowUpRight, Brain, CalendarDays, Clock, Code2, FileText, Flame, History, Mic, Target, TrendingDown, TrendingUp, Trophy } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Brain, CalendarDays, Clock, Code2, FileText, Flame, History, Mic, Target, TrendingDown, TrendingUp, Trophy } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { api, errorMessage } from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";

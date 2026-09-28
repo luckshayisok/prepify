@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
-import { History as HistoryIcon, Sparkles } from "lucide-react";
+import { History as HistoryIcon, Sparkles } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { EmptyState, ErrorState, LevelBadge, ModeBadge, Page, PageHeader, SegmentedControl, Skeleton } from "@/components/common";
 import SessionList from "@/components/SessionList";

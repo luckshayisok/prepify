@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Navigate, useLocation, useNavigate, useParams } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "framer-motion";
-import { ChevronLeft, ChevronRight, Clock, Loader2, Send } from "lucide-react";
+import { ChevronLeft, ChevronRight, Clock, Loader2, Send } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Alert, ErrorState, LevelBadge, Spinner } from "@/components/common";
 import FocusHeader from "@/components/layout/FocusHeader";

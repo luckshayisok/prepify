@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft } from "@/components/icons";
 
 // Slim header for full-width focus screens (quiz, coding editor).
 export default function FocusHeader({ backTo, backLabel = "Back", title, children }) {

@@ -1,4 +1,4 @@
-import { Brain, Code2, Mic } from "lucide-react";
+import { Brain, Code2, Mic } from "@/components/icons";
 
 export const MODES = {
   mcq: { label: "MCQ", icon: Brain },

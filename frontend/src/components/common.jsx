@@ -1,12 +1,14 @@
 import { Link } from "react-router-dom";
-import { AlertCircle, Loader2 } from "lucide-react";
+import { AlertCircle, Loader2, PrepifyMark } from "@/components/icons";
 import { cn } from "@/lib/utils";
 import { LEVEL_DOTS, MODES } from "@/lib/format";
 
 export function Logo({ className, to = "/" }) {
   return (
     <Link to={to} className={cn("flex items-center gap-2 font-semibold tracking-tight", className)}>
-      <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary text-sm font-bold text-primary-foreground">P</span>
+      <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+        <PrepifyMark className="h-[18px] w-[18px]" strokeWidth={2} />
+      </span>
       <span className="text-[15px]">Prepify</span>
     </Link>
   );
