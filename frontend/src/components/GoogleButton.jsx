@@ -5,6 +5,27 @@ import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
 import { errorMessage } from "@/lib/api";
 import { GOOGLE_CLIENT_ID } from "@/lib/config";
+import GoogleLogo from "@/components/icons/GoogleLogo";
+
+// In local dev, show a disabled stand-in so it's obvious the button exists but needs configuring.
+const SHOW_PLACEHOLDER = !GOOGLE_CLIENT_ID && import.meta.env.DEV;
+
+function UnconfiguredButton() {
+  return (
+    <div className="space-y-1.5">
+      <button
+        type="button"
+        disabled
+        className="flex h-10 w-full cursor-not-allowed items-center justify-center gap-2.5 rounded-lg border bg-background text-sm font-medium opacity-60 shadow-xs"
+      >
+        <GoogleLogo className="h-4 w-4" /> Continue with Google
+      </button>
+      <p className="text-center text-xs text-muted-foreground">
+        Dev only: set <code className="font-mono">VITE_GOOGLE_CLIENT_ID</code> to enable Google sign-in.
+      </p>
+    </div>
+  );
+}
 
 // Google's official button (renders in an iframe). Hidden when no client ID is configured.
 export default function GoogleButton({ text = "continue_with", onError }) {
@@ -23,7 +44,7 @@ export default function GoogleButton({ text = "continue_with", onError }) {
     return () => ro.disconnect();
   }, []);
 
-  if (!GOOGLE_CLIENT_ID) return null;
+  if (!GOOGLE_CLIENT_ID) return SHOW_PLACEHOLDER ? <UnconfiguredButton /> : null;
 
   return (
     <div ref={box} className="flex h-10 w-full justify-center">
@@ -50,7 +71,7 @@ export default function GoogleButton({ text = "continue_with", onError }) {
 }
 
 export function OrDivider() {
-  if (!GOOGLE_CLIENT_ID) return null;
+  if (!GOOGLE_CLIENT_ID && !SHOW_PLACEHOLDER) return null;
   return (
     <div className="flex items-center gap-3 text-xs text-muted-foreground">
       <span className="h-px flex-1 bg-border" /> or <span className="h-px flex-1 bg-border" />

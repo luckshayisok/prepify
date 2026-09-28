@@ -1,7 +1,8 @@
 import { Link } from "react-router-dom";
-import { ArrowRight, Brain, Check, Code2, FileText, Flame, LineChart, Mic, Trophy } from "@/components/icons";
+import { ArrowRight, Brain, Check, Code2, FileText, LineChart, Mic, Trophy } from "@/components/icons";
 import { Button } from "@/components/ui/button";
-import { Logo, ProgressBar } from "@/components/common";
+import { Logo } from "@/components/common";
+import ProductPreview from "@/components/landing/ProductPreview";
 import { useAuth } from "@/context/AuthContext";
 
 const FEATURES = [
@@ -13,54 +14,13 @@ const FEATURES = [
   { icon: Trophy, title: "XP & streaks", text: "Level up, keep a daily streak, unlock badges and climb the leaderboard." },
 ];
 
-// A static, illustrative preview of the dashboard.
-function ProductPreview() {
-  const bars = [42, 55, 48, 63, 70, 66, 78, 84];
-  return (
-    <div className="overflow-hidden rounded-xl border bg-card shadow-2xl shadow-black/5">
-      <div className="flex items-center gap-1.5 border-b px-4 py-3">
-        <span className="h-2.5 w-2.5 rounded-full bg-muted-foreground/20" />
-        <span className="h-2.5 w-2.5 rounded-full bg-muted-foreground/20" />
-        <span className="h-2.5 w-2.5 rounded-full bg-muted-foreground/20" />
-      </div>
-      <div className="grid gap-4 p-5 sm:grid-cols-3">
-        <div className="rounded-lg border p-4">
-          <p className="text-xs text-muted-foreground">Level 5</p>
-          <p className="tabular mt-1 text-xl font-semibold">1,040 XP</p>
-          <ProgressBar value={40} className="mt-3" />
-        </div>
-        <div className="rounded-lg border p-4">
-          <p className="text-xs text-muted-foreground">Streak</p>
-          <p className="mt-1 flex items-center gap-1.5 text-xl font-semibold">
-            <Flame className="h-5 w-5 text-orange-500" /> 7 days
-          </p>
-        </div>
-        <div className="rounded-lg border p-4">
-          <p className="text-xs text-muted-foreground">Voice score</p>
-          <p className="tabular mt-1 text-xl font-semibold">
-            86% <span className="text-sm font-medium text-emerald-600">+12</span>
-          </p>
-        </div>
-        <div className="rounded-lg border p-4 sm:col-span-3">
-          <p className="mb-4 text-xs text-muted-foreground">Score trend</p>
-          <div className="flex h-24 items-end gap-2">
-            {bars.map((h, i) => (
-              <div key={i} className="flex-1 rounded-t bg-primary/80" style={{ height: `${h}%`, opacity: 0.35 + i * 0.08 }} />
-            ))}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 export default function Home() {
   const { user } = useAuth();
   const cta = user ? "/dashboard" : "/signup";
 
   return (
     <div>
-      <section className="mx-auto max-w-6xl px-4 pb-20 pt-16 sm:px-8 sm:pt-24">
+      <section className="mx-auto max-w-6xl px-4 pb-28 pt-16 sm:px-8 sm:pt-24">
         <div className="mx-auto max-w-3xl text-center">
           <p className="mb-5 inline-flex items-center gap-2 rounded-full border bg-card px-3 py-1 text-xs font-medium text-muted-foreground shadow-xs">
             <span className="h-1.5 w-1.5 rounded-full bg-primary" /> Voice interviews and coding rounds are live
@@ -93,7 +53,7 @@ export default function Home() {
             ))}
           </ul>
         </div>
-        <div className="mx-auto mt-16 max-w-4xl">
+        <div className="mx-auto mt-16 max-w-5xl">
           <ProductPreview />
         </div>
       </section>
