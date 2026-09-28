@@ -33,17 +33,6 @@ function createIcon(name, children) {
   return Icon;
 }
 
-// ---------- Brand ----------
-
-// Speech bubble with a check: "practice the conversation, get it right".
-export const PrepifyMark = createIcon(
-  "PrepifyMark",
-  <>
-    <path d="M5 6.75A2.75 2.75 0 0 1 7.75 4h8.5A2.75 2.75 0 0 1 19 6.75v6.5A2.75 2.75 0 0 1 16.25 16H11.5l-4 3.5V16h.25A2.75 2.75 0 0 1 5 13.25z" />
-    <path d="M9 10.25l2 2 4-4.25" />
-  </>
-);
-
 // ---------- Navigation & modes ----------
 
 export const LayoutDashboard = createIcon(

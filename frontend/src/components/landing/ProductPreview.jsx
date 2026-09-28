@@ -1,5 +1,6 @@
 import { useId } from "react";
-import { Brain, Code2, History, LayoutDashboard, Mic, PrepifyMark, Trophy } from "@/components/icons";
+import { Brain, Code2, History, LayoutDashboard, Mic, Trophy } from "@/components/icons";
+import Wordmark from "@/components/icons/Wordmark";
 import { cn } from "@/lib/utils";
 
 // Illustrative data for the static landing-page mockup.
@@ -99,11 +100,8 @@ export default function ProductPreview() {
         <div className="flex">
           {/* Mini sidebar */}
           <aside className="hidden w-44 shrink-0 border-r bg-sidebar p-3 md:block">
-            <div className="mb-4 flex items-center gap-2 px-1.5 text-[13px] font-semibold">
-              <span className="flex h-6 w-6 items-center justify-center rounded-md bg-primary text-primary-foreground">
-                <PrepifyMark className="h-4 w-4" strokeWidth={2} />
-              </span>
-              Prepify
+            <div className="mb-4 px-1.5">
+              <Wordmark className="h-5" />
             </div>
             <ul className="space-y-0.5">
               {NAV.map(({ icon: Icon, label, active }) => (

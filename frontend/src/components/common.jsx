@@ -1,15 +1,13 @@
 import { Link } from "react-router-dom";
-import { AlertCircle, Loader2, PrepifyMark } from "@/components/icons";
+import { AlertCircle, Loader2 } from "@/components/icons";
+import Wordmark from "@/components/icons/Wordmark";
 import { cn } from "@/lib/utils";
 import { LEVEL_DOTS, MODES } from "@/lib/format";
 
-export function Logo({ className, to = "/" }) {
+export function Logo({ className, to = "/", size = "h-6" }) {
   return (
-    <Link to={to} className={cn("flex items-center gap-2 font-semibold tracking-tight", className)}>
-      <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-        <PrepifyMark className="h-[18px] w-[18px]" strokeWidth={2} />
-      </span>
-      <span className="text-[15px]">Prepify</span>
+    <Link to={to} aria-label="Prepify home" className={cn("inline-flex items-center rounded-md text-foreground", className)}>
+      <Wordmark className={size} />
     </Link>
   );
 }
