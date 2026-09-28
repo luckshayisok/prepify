@@ -4,12 +4,12 @@ import { ArrowRight, ArrowUpRight, Brain, CalendarDays, Clock, Code2, FileText, 
 import { Button } from "@/components/ui/button";
 import { api, errorMessage } from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
-import { EmptyState, ErrorState, Page, PageHeader, PageSkeleton, Section, StatCard } from "@/components/common";
+import { EmptyState, ErrorState, Page, PageSkeleton, Section, StatCard } from "@/components/common";
+import DashboardHero from "@/components/dashboard/DashboardHero";
 import SessionList from "@/components/SessionList";
 import ScoreTrend from "@/components/dashboard/ScoreTrend";
 import ActivityHeatmap from "@/components/dashboard/ActivityHeatmap";
 import TopicBars from "@/components/dashboard/TopicBars";
-import { greeting } from "@/lib/format";
 
 const MODES = [
   { to: "/setup", icon: Brain, title: "MCQ quiz", text: "Timed questions on any topic" },
@@ -38,29 +38,17 @@ export default function Dashboard() {
 
   return (
     <Page>
-      <PageHeader
-        title={`${greeting()}, ${me.name.split(" ")[0]}`}
-        description={
-          isNew
-            ? "Pick a mode below to start your first session."
-            : me.streak.current > 0
-              ? `You're on a ${me.streak.current}-day streak. One session today keeps it going.`
-              : "Your streak reset — a session today starts a new one."
-        }
-        actions={
-          <Button asChild>
-            <Link to="/setup">
-              Start practice <ArrowRight />
-            </Link>
-          </Button>
-        }
-      />
+      <DashboardHero user={me} isNew={isNew} />
 
       <div className="mb-8 grid gap-3 sm:grid-cols-3">
         {MODES.map(({ to, icon: Icon, title, text }) => (
-          <Link key={to} to={to} className="group flex items-center gap-3.5 rounded-xl border bg-card p-4 shadow-xs transition hover:border-foreground/20">
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-              <Icon className="h-[18px] w-[18px]" />
+          <Link
+            key={to}
+            to={to}
+            className="group flex items-center gap-3.5 rounded-xl border bg-card p-4 shadow-xs transition hover:border-foreground/20 hover:shadow-md"
+          >
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border bg-background text-foreground">
+              <Icon className="h-5 w-5" />
             </span>
             <span className="min-w-0 flex-1">
               <span className="block text-sm font-medium">{title}</span>

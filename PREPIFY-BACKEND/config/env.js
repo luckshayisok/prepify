@@ -32,6 +32,6 @@ export function assertRequiredEnv() {
     throw new Error(`Missing required environment variables: ${missing.join(", ")}`);
   }
   if (!env.geminiApiKey && !env.aiMock) {
-    console.warn("⚠️  GEMINI_API_KEY is not set — AI features will return 503 until it is.");
+    console.warn("Warning: GEMINI_API_KEY is not set — AI features will return 503 until it is.");
   }
 }

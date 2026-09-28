@@ -6,10 +6,10 @@ try {
   assertRequiredEnv();
   await connectDB();
 } catch (err) {
-  console.error("❌ Failed to start:", err.message);
+  console.error("Failed to start:", err.message);
   process.exit(1);
 }
 
 createApp().listen(env.port, () => {
-  console.log(`🚀 Server running at http://localhost:${env.port}`);
+  console.log(`Server running at http://localhost:${env.port}`);
 });

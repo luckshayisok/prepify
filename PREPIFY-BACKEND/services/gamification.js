@@ -62,18 +62,18 @@ export function liveStreak(streak = {}, today = dayKey()) {
 }
 
 export const BADGES = [
-  { id: "first_steps", name: "First Steps", icon: "🚀", description: "Complete your first interview" },
-  { id: "perfectionist", name: "Perfectionist", icon: "💯", description: "Score 100% in any session" },
-  { id: "on_fire", name: "On Fire", icon: "🔥", description: "Reach a 3-day streak" },
-  { id: "unstoppable", name: "Unstoppable", icon: "⚡", description: "Reach a 7-day streak" },
-  { id: "smooth_talker", name: "Smooth Talker", icon: "🎙️", description: "Complete a voice interview" },
-  { id: "code_warrior", name: "Code Warrior", icon: "💻", description: "Solve your first coding problem" },
-  { id: "algorithmist", name: "Algorithmist", icon: "🧠", description: "Solve 5 different coding problems" },
-  { id: "tailored", name: "Tailored", icon: "📄", description: "Upload your resume" },
-  { id: "hard_mode", name: "Hard Mode", icon: "🏔️", description: "Score 80%+ on a hard session" },
-  { id: "marathon", name: "Marathon", icon: "🏃", description: "Complete 10 sessions" },
-  { id: "polymath", name: "Polymath", icon: "🎓", description: "Complete MCQ, voice and coding sessions" },
-  { id: "level_5", name: "Rising Star", icon: "⭐", description: "Reach level 5" },
+  { id: "first_steps", name: "First Steps", description: "Complete your first interview" },
+  { id: "perfectionist", name: "Perfectionist", description: "Score 100% in any session" },
+  { id: "on_fire", name: "On Fire", description: "Reach a 3-day streak" },
+  { id: "unstoppable", name: "Unstoppable", description: "Reach a 7-day streak" },
+  { id: "smooth_talker", name: "Smooth Talker", description: "Complete a voice interview" },
+  { id: "code_warrior", name: "Code Warrior", description: "Solve your first coding problem" },
+  { id: "algorithmist", name: "Algorithmist", description: "Solve 5 different coding problems" },
+  { id: "tailored", name: "Tailored", description: "Upload your resume" },
+  { id: "hard_mode", name: "Hard Mode", description: "Score 80%+ on a hard session" },
+  { id: "marathon", name: "Marathon", description: "Complete 10 sessions" },
+  { id: "polymath", name: "Polymath", description: "Complete MCQ, voice and coding sessions" },
+  { id: "level_5", name: "Rising Star", description: "Reach level 5" },
 ];
 
 // Returns ids of badges newly earned given the user's state *after* the event.

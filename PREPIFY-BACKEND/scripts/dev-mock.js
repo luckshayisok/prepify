@@ -13,7 +13,7 @@ const { env } = await import("../config/env.js");
 
 await connectDB(mongo.getUri(), "prepify-dev");
 createApp().listen(env.port, () => {
-  console.log(`🧪 Mock API running at http://localhost:${env.port} (in-memory DB, AI_MOCK=true)`);
+  console.log(`Mock API running at http://localhost:${env.port} (in-memory DB, AI_MOCK=true)`);
 });
 
 const shutdown = async () => {

@@ -1,7 +1,8 @@
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { MODES, formatDate } from "@/lib/format";
 
-const PRIMARY = "hsl(var(--primary))";
+const FROM = "#6366f1"; // indigo-500
+const TO = "#d946ef"; // fuchsia-500
 
 function TrendTooltip({ active, payload }) {
   if (!active || !payload?.length) return null;
@@ -26,8 +27,13 @@ export default function ScoreTrend({ data }) {
         <AreaChart data={points} margin={{ top: 8, right: 8, bottom: 0, left: -24 }}>
           <defs>
             <linearGradient id="scoreFill" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor={PRIMARY} stopOpacity={0.18} />
-              <stop offset="100%" stopColor={PRIMARY} stopOpacity={0} />
+              <stop offset="0%" stopColor={FROM} stopOpacity={0.28} />
+              <stop offset="60%" stopColor={TO} stopOpacity={0.06} />
+              <stop offset="100%" stopColor={TO} stopOpacity={0} />
+            </linearGradient>
+            <linearGradient id="scoreStroke" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stopColor={FROM} />
+              <stop offset="100%" stopColor={TO} />
             </linearGradient>
           </defs>
           <CartesianGrid vertical={false} stroke="hsl(var(--border))" />
@@ -37,11 +43,11 @@ export default function ScoreTrend({ data }) {
           <Area
             type="monotone"
             dataKey="score"
-            stroke={PRIMARY}
-            strokeWidth={2}
+            stroke="url(#scoreStroke)"
+            strokeWidth={2.5}
             fill="url(#scoreFill)"
-            dot={{ r: 3.5, strokeWidth: 2, fill: PRIMARY, stroke: "hsl(var(--card))" }}
-            activeDot={{ r: 5, strokeWidth: 2, stroke: "hsl(var(--card))" }}
+            dot={{ r: 3.5, strokeWidth: 2, fill: FROM, stroke: "hsl(var(--card))" }}
+            activeDot={{ r: 5, strokeWidth: 2, fill: TO, stroke: "hsl(var(--card))" }}
           />
         </AreaChart>
       </ResponsiveContainer>
