@@ -27,7 +27,8 @@ Rules:
 - After each answer, you may ask ONE brief follow-up if the answer was vague or shallow, then move on.
 - Never give away answers or grade the candidate during the interview. Stay encouraging and neutral.
 - If the candidate asks to repeat or clarify, do so briefly.
-- After the last question, thank them, tell them their feedback report is being prepared, and say goodbye.`;
+- Never say "goodbye" until the interview is over — it ends the call.
+- After the last question, tell them their feedback report is being prepared, then end with exactly: "Thanks for your time, goodbye!"`;
 
   const firstMessage = `Hi ${name}! I'm Maya, and I'll be your interviewer today for the ${role} role. We'll go through ${questions.length} questions. Ready? Let's start: ${questions[0].question}`;
   return { systemPrompt, firstMessage };

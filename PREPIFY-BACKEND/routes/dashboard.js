@@ -68,8 +68,9 @@ router.get("/dashboard", requireAuth, async (req, res) => {
     byMode: Object.fromEntries(byMode.map((m) => [m._id, { count: m.count, avgScore: Math.round(m.avgScore ?? 0) }])),
     trend: trend.reverse().map((s) => ({ id: s._id, mode: s.mode, score: s.score, date: s.completedAt, title: s.title })),
     activity: { today: dayKey(), days: HEATMAP_DAYS, counts: Object.fromEntries(activity.map((a) => [a._id, a.count])) },
-    strongestTopics: sortedTopics.slice(0, 5),
-    weakestTopics: [...sortedTopics].reverse().slice(0, 5),
+    // Split at 70% so a topic never shows up in both lists.
+    strongestTopics: sortedTopics.filter((t) => t.accuracy >= 70).slice(0, 5),
+    weakestTopics: sortedTopics.filter((t) => t.accuracy < 70).reverse().slice(0, 5),
     recent: recent.map((s) => ({
       id: s._id,
       mode: s.mode,

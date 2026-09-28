@@ -6,6 +6,7 @@
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js",
+    "dev:mock": "node scripts/dev-mock.js",
     "test": "node --test --test-concurrency=1 \"tests/*.test.js\""
   },
   "keywords": [],
