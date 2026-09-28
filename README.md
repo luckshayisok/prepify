@@ -68,7 +68,7 @@ cd frontend && npm run lint && npm run build
 
 | Variable | Notes |
 | --- | --- |
-| `VITE_API_URL` | Backend URL. Defaults to localhost in dev and the Render deployment in production. |
+| `VITE_API_URL` | Backend URL. Defaults to localhost in dev and `https://prepify-api.onrender.com` in production. |
 | `VITE_VAPI_PUBLIC_KEY` | Needed for voice calls |
 | `VITE_GOOGLE_CLIENT_ID` | Same client ID as the backend. The Google button is hidden when unset. |
 

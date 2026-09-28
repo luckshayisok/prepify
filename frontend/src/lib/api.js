@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const PROD_API = "https://prepify-8a12.onrender.com";
+const PROD_API = "https://prepify-api.onrender.com";
 export const API_URL = (
   import.meta.env.VITE_API_URL || (import.meta.env.PROD ? PROD_API : "http://localhost:5000")
 ).replace(/\/$/, "");
