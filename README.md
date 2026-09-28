@@ -1,6 +1,6 @@
 # Prepify
 
-An AI interview coach: timed MCQ rounds, a spoken voice interviewer, a coding round, and
+An AI interview coach with email or Google sign-in: timed MCQ rounds, a spoken voice interviewer, a coding round, and
 resume-personalized questions — with a progress dashboard, XP, levels, streaks, badges and a leaderboard.
 
 | Mode | What happens |
@@ -58,6 +58,7 @@ cd frontend && npm run lint && npm run build
 | `MONGODB_URI` | yes | MongoDB connection string |
 | `MONGODB_DB` | no | Overrides the database name in the URI |
 | `JWT_SECRET`, `JWT_REFRESH_SECRET` | yes | Long random strings |
+| `GOOGLE_CLIENT_ID` | for Google login | OAuth web client ID (see below) |
 | `GEMINI_API_KEY` | for AI | AI routes return 503 without it |
 | `GEMINI_MODEL` | no | Default `gemini-2.5-flash` |
 | `CORS_ORIGINS` | no | Comma-separated. Default: `http://localhost:5173,https://prepify-chi.vercel.app` |
@@ -69,6 +70,15 @@ cd frontend && npm run lint && npm run build
 | --- | --- |
 | `VITE_API_URL` | Backend URL. Defaults to localhost in dev and the Render deployment in production. |
 | `VITE_VAPI_PUBLIC_KEY` | Needed for voice calls |
+| `VITE_GOOGLE_CLIENT_ID` | Same client ID as the backend. The Google button is hidden when unset. |
+
+## Setting up Google sign-in
+
+1. In [Google Cloud Console](https://console.cloud.google.com/apis/credentials), create an **OAuth client ID** of type **Web application**.
+2. Under **Authorized JavaScript origins**, add `http://localhost:5173` and your production URL (e.g. `https://prepify-chi.vercel.app`). No redirect URIs are needed.
+3. Set the client ID as `GOOGLE_CLIENT_ID` on the backend and `VITE_GOOGLE_CLIENT_ID` on the frontend, then redeploy both.
+
+Signing in with Google links to an existing account with the same email. Google-only users can add a password in **Settings**.
 
 ## Notes
 

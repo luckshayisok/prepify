@@ -2,46 +2,47 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "framer-motion";
-import { Bot, Briefcase, Headphones, Loader2, Mic, MicOff, PhoneOff, Sparkles, User, Volume2 } from "lucide-react";
+import { Bot, Headphones, Loader2, Mic, MicOff, PhoneOff, Sparkles, User } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { GradientButton, Page, PageHeader, PersonalizeToggle } from "@/components/common";
+import { Alert, Field, Page, PageHeader, PersonalizeToggle, SegmentedControl } from "@/components/common";
 import { useAuth } from "@/context/AuthContext";
 import { api, errorMessage } from "@/lib/api";
-import { LEVEL_STYLES, formatClock } from "@/lib/format";
+import { formatClock } from "@/lib/format";
 import { useVapiInterview, VAPI_PUBLIC_KEY } from "@/hooks/useVapiInterview";
 import { cn } from "@/lib/utils";
 
 const STYLES = [
-  { id: "technical", label: "Technical", text: "Concepts, trade-offs, debugging" },
-  { id: "behavioral", label: "Behavioral", text: "STAR-style experience questions" },
-  { id: "mixed", label: "Mixed", text: "A realistic blend of both" },
+  { value: "technical", label: "Technical", hint: "Concepts & trade-offs" },
+  { value: "behavioral", label: "Behavioral", hint: "STAR stories" },
+  { value: "mixed", label: "Mixed", hint: "A realistic blend" },
+];
+const LEVELS = [
+  { value: "easy", label: "Easy" },
+  { value: "medium", label: "Medium" },
+  { value: "hard", label: "Hard" },
 ];
 
-function Orb({ speaking, volume, live }) {
-  const scale = 1 + (speaking ? Math.min(volume, 1) * 0.35 : 0);
+// Calm visual for the AI's voice: a ring that breathes with its volume.
+function VoiceOrb({ speaking, volume, live }) {
+  const scale = 1 + (speaking ? Math.min(volume, 1) * 0.25 : 0);
   return (
-    <div className="relative flex h-56 w-56 items-center justify-center">
-      {live &&
-        [0, 1, 2].map((i) => (
-          <motion.span
-            key={i}
-            className="absolute inset-0 rounded-full border-2 border-purple-500/40"
-            animate={speaking ? { scale: [1, 1.5], opacity: [0.6, 0] } : { scale: 1, opacity: 0 }}
-            transition={{ duration: 1.6, repeat: Infinity, delay: i * 0.5, ease: "easeOut" }}
-          />
-        ))}
+    <div className="relative flex h-44 w-44 items-center justify-center">
+      <motion.span
+        className="absolute inset-0 rounded-full bg-primary/10"
+        animate={{ scale: speaking ? [1, 1.12, 1] : 1, opacity: live ? 1 : 0.4 }}
+        transition={{ duration: 1.6, repeat: speaking ? Infinity : 0 }}
+      />
       <motion.div
         animate={{ scale }}
         transition={{ type: "spring", stiffness: 300, damping: 20 }}
         className={cn(
-          "flex h-40 w-40 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 via-purple-500 to-fuchsia-500 shadow-2xl",
-          live ? "shadow-purple-500/40" : "opacity-70"
+          "flex h-28 w-28 items-center justify-center rounded-full border bg-card shadow-lg",
+          live && "border-primary/40"
         )}
       >
-        {speaking ? <Volume2 className="h-12 w-12 text-white" /> : <Bot className="h-12 w-12 text-white" />}
+        <Bot className={cn("h-10 w-10", live ? "text-primary" : "text-muted-foreground")} />
       </motion.div>
     </div>
   );
@@ -75,86 +76,45 @@ function SetupForm({ onReady }) {
   };
 
   return (
-    <form onSubmit={submit} className="mx-auto max-w-2xl space-y-6 rounded-3xl border bg-card p-6 shadow-lg sm:p-8">
+    <form onSubmit={submit} className="space-y-7 rounded-xl border bg-card p-5 shadow-xs sm:p-7">
       {!VAPI_PUBLIC_KEY && (
-        <p className="rounded-xl bg-amber-50 p-4 text-sm text-amber-800 dark:bg-amber-950/30 dark:text-amber-300">
-          Voice calls need a Vapi public key (<code>VITE_VAPI_PUBLIC_KEY</code>). You can still prepare an interview, but the call won't connect
-          until it's configured.
-        </p>
+        <Alert tone="warning">
+          Voice calls need a Vapi public key (<code className="font-mono text-xs">VITE_VAPI_PUBLIC_KEY</code>). You can prepare an interview, but the call won't
+          connect until it's configured.
+        </Alert>
       )}
-      <div className="space-y-2">
-        <Label>Target role</Label>
-        <Input value={form.role} onChange={(e) => set("role", e.target.value)} placeholder="e.g. Frontend Developer, Data Analyst" required maxLength={80} className="h-12" />
-      </div>
-
-      <div className="space-y-2">
-        <Label>Interview style</Label>
-        <div className="grid gap-2 sm:grid-cols-3">
-          {STYLES.map((s) => (
-            <button
-              type="button"
-              key={s.id}
-              onClick={() => set("style", s.id)}
-              className={cn(
-                "rounded-xl border p-3 text-left transition",
-                form.style === s.id ? "border-purple-500 bg-purple-50 ring-2 ring-purple-500/20 dark:bg-purple-950/30" : "hover:bg-accent"
-              )}
-            >
-              <p className="font-medium">{s.label}</p>
-              <p className="text-xs text-muted-foreground">{s.text}</p>
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div className="space-y-2">
-          <Label>Difficulty</Label>
-          <div className="grid grid-cols-3 gap-2">
-            {["easy", "medium", "hard"].map((l) => (
-              <button
-                type="button"
-                key={l}
-                onClick={() => set("level", l)}
-                className={cn("h-11 rounded-xl border text-sm font-medium capitalize", form.level === l ? LEVEL_STYLES[l] + " border-current" : "hover:bg-accent")}
-              >
-                {l}
-              </button>
-            ))}
-          </div>
-        </div>
-        <div className="space-y-2">
-          <Label>Questions ({form.numQuestions})</Label>
+      <Field label="Target role" htmlFor="role">
+        <Input id="role" value={form.role} onChange={(e) => set("role", e.target.value)} placeholder="e.g. Frontend Developer" required maxLength={80} className="h-10" />
+      </Field>
+      <Field label="Interview style">
+        <SegmentedControl aria-label="Interview style" value={form.style} onChange={(v) => set("style", v)} options={STYLES} />
+      </Field>
+      <div className="grid gap-6 sm:grid-cols-2">
+        <Field label="Difficulty">
+          <SegmentedControl aria-label="Difficulty" value={form.level} onChange={(v) => set("level", v)} options={LEVELS} />
+        </Field>
+        <Field label={`Questions · ${form.numQuestions}`} htmlFor="count">
           <input
+            id="count"
             type="range"
             min={2}
             max={8}
             value={form.numQuestions}
             onChange={(e) => set("numQuestions", e.target.value)}
-            className="h-11 w-full accent-purple-600"
+            className="h-10 w-full accent-[hsl(var(--primary))]"
           />
-        </div>
+        </Field>
       </div>
-
       <PersonalizeToggle checked={form.personalized} onChange={(v) => set("personalized", v)} hasResume={user?.hasResume} />
-
-      <div className="space-y-2">
-        <Label className="flex items-center gap-2">
-          <Briefcase className="h-4 w-4" /> Job description <span className="font-normal text-muted-foreground">(optional)</span>
-        </Label>
-        <Textarea
-          value={form.jobDescription}
-          onChange={(e) => set("jobDescription", e.target.value)}
-          placeholder="Paste a job posting to focus the questions on it."
-          maxLength={5000}
-          className="min-h-24"
-        />
+      <Field label="Job description" htmlFor="jd" hint="Optional — focuses the questions on this role.">
+        <Textarea id="jd" value={form.jobDescription} onChange={(e) => set("jobDescription", e.target.value)} placeholder="Paste a job posting…" maxLength={5000} className="min-h-24" />
+      </Field>
+      {error && <Alert>{error}</Alert>}
+      <div className="flex justify-end border-t pt-5">
+        <Button type="submit" size="lg" disabled={busy || !form.role.trim()}>
+          {busy ? <Loader2 className="animate-spin" /> : <Sparkles />} {busy ? "Preparing…" : "Prepare interview"}
+        </Button>
       </div>
-
-      {error && <p className="rounded-lg bg-red-50 p-3 text-sm text-red-700 dark:bg-red-950/40 dark:text-red-300">{error}</p>}
-      <GradientButton type="submit" disabled={busy || !form.role.trim()} className="h-12 w-full">
-        {busy ? <Loader2 className="animate-spin" /> : <Sparkles />} {busy ? "Preparing your interviewer…" : "Prepare interview"}
-      </GradientButton>
     </form>
   );
 }
@@ -171,7 +131,6 @@ export default function VoiceInterview() {
   const scrollRef = useRef(null);
   const graded = useRef(false);
 
-  // Call timer
   useEffect(() => {
     if (call.status !== "live") return;
     const started = Date.now();
@@ -211,11 +170,10 @@ export default function VoiceInterview() {
 
   if (!prepared) {
     return (
-      <Page>
+      <Page className="max-w-2xl">
         <PageHeader
-          eyebrow="Voice interview"
-          title="Talk it through with an AI interviewer"
-          description="A realistic spoken interview. When you hang up, you get scores for communication, accuracy, structure and confidence, plus a filler-word count."
+          title="Voice interview"
+          description="A realistic spoken interview with an AI. When you hang up you get scores for communication, accuracy, structure and confidence."
         />
         <SetupForm onReady={setPrepared} />
       </Page>
@@ -224,31 +182,32 @@ export default function VoiceInterview() {
 
   const live = call.status === "live";
   const idle = call.status === "idle" || call.status === "error";
+  const turns = [...call.transcript, ...(call.partial ? [{ ...call.partial, partial: true }] : [])];
 
   return (
     <Page className="max-w-5xl">
+      <PageHeader title={prepared.session.title} description="Your interviewer is Maya. Answer out loud, as you would in a real interview." />
       <div className="grid gap-6 lg:grid-cols-5">
-        <section className="flex flex-col items-center rounded-3xl border bg-card p-6 text-center shadow-sm lg:col-span-2">
-          <p className="text-sm text-muted-foreground">{prepared.session.title}</p>
-          <p className="mb-2 font-mono text-2xl font-semibold tabular-nums">{formatClock(elapsed)}</p>
-          <Orb speaking={call.assistantSpeaking} volume={call.volume} live={live} />
-          <p className="mt-2 h-6 text-sm font-medium">
+        <section className="flex flex-col items-center rounded-xl border bg-card p-6 text-center shadow-xs lg:col-span-2">
+          <p className="tabular text-sm font-medium text-muted-foreground">{formatClock(elapsed)}</p>
+          <VoiceOrb speaking={call.assistantSpeaking} volume={call.volume} live={live} />
+          <p className="h-5 text-sm text-muted-foreground" aria-live="polite">
             {call.status === "connecting" && "Connecting…"}
             {live && (call.assistantSpeaking ? "Maya is speaking" : "Listening…")}
             {grading && "Grading your interview…"}
           </p>
 
           {idle && !grading && (
-            <div className="mt-4 w-full space-y-3">
-              <ul className="space-y-2 rounded-xl bg-muted p-4 text-left text-sm text-muted-foreground">
-                <li className="flex gap-2"><Headphones className="h-4 w-4 shrink-0" /> Use headphones in a quiet room.</li>
-                <li className="flex gap-2"><Mic className="h-4 w-4 shrink-0" /> Allow microphone access when asked.</li>
-                <li className="flex gap-2"><Sparkles className="h-4 w-4 shrink-0" /> Think aloud — structure beats speed.</li>
+            <div className="mt-6 w-full space-y-3 text-left">
+              <ul className="space-y-2 rounded-lg border px-4 py-3 text-sm text-muted-foreground">
+                <li className="flex gap-2.5"><Headphones className="mt-0.5 h-4 w-4 shrink-0" /> Use headphones in a quiet room.</li>
+                <li className="flex gap-2.5"><Mic className="mt-0.5 h-4 w-4 shrink-0" /> Allow microphone access when asked.</li>
+                <li className="flex gap-2.5"><Sparkles className="mt-0.5 h-4 w-4 shrink-0" /> Think aloud — structure beats speed.</li>
               </ul>
-              {call.error && <p className="rounded-lg bg-red-50 p-3 text-sm text-red-700 dark:bg-red-950/40 dark:text-red-300">{call.error}</p>}
-              <GradientButton className="h-12 w-full" onClick={() => call.start(prepared.assistant)}>
+              {call.error && <Alert>{call.error}</Alert>}
+              <Button size="lg" className="w-full" onClick={() => call.start(prepared.assistant)}>
                 <Mic /> {call.status === "error" ? "Try again" : "Start call"}
-              </GradientButton>
+              </Button>
               <Button variant="ghost" className="w-full" onClick={reset}>
                 Change settings
               </Button>
@@ -256,46 +215,41 @@ export default function VoiceInterview() {
           )}
 
           {(live || call.status === "connecting") && (
-            <div className="mt-6 flex gap-3">
-              <Button variant="outline" size="lg" onClick={call.toggleMute} aria-label={call.muted ? "Unmute" : "Mute"}>
+            <div className="mt-6 flex gap-2">
+              <Button variant="outline" onClick={call.toggleMute} aria-pressed={call.muted}>
                 {call.muted ? <MicOff /> : <Mic />} {call.muted ? "Unmute" : "Mute"}
               </Button>
-              <Button variant="destructive" size="lg" onClick={call.stop}>
+              <Button variant="destructive" onClick={call.stop}>
                 <PhoneOff /> End interview
               </Button>
             </div>
           )}
 
-          {grading && <Loader2 className="mt-6 h-8 w-8 animate-spin text-purple-600" />}
+          {grading && <Loader2 className="mt-6 h-5 w-5 animate-spin text-muted-foreground" />}
           {gradeError && (
-            <div className="mt-4 space-y-3">
-              <p className="rounded-lg bg-red-50 p-3 text-sm text-red-700 dark:bg-red-950/40 dark:text-red-300">{gradeError}</p>
-              <GradientButton onClick={reset}>Start a new interview</GradientButton>
+            <div className="mt-6 w-full space-y-3">
+              <Alert>{gradeError}</Alert>
+              <Button onClick={reset} className="w-full">
+                Start a new interview
+              </Button>
             </div>
           )}
         </section>
 
-        <section className="flex min-h-[28rem] flex-col rounded-3xl border bg-card shadow-sm lg:col-span-3">
-          <h2 className="border-b px-6 py-4 font-semibold">Live transcript</h2>
-          <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto p-6" style={{ maxHeight: "32rem" }}>
-            {call.transcript.length === 0 && !call.partial && (
-              <p className="py-20 text-center text-sm text-muted-foreground">The conversation will appear here once the call starts.</p>
-            )}
+        <section className="flex min-h-[26rem] flex-col rounded-xl border bg-card shadow-xs lg:col-span-3">
+          <h2 className="border-b px-5 py-3.5 text-sm font-semibold">Live transcript</h2>
+          <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto p-5" style={{ maxHeight: "30rem" }}>
+            {turns.length === 0 && <p className="py-20 text-center text-sm text-muted-foreground">The conversation will appear here once the call starts.</p>}
             <AnimatePresence initial={false}>
-              {[...call.transcript, ...(call.partial ? [{ ...call.partial, partial: true }] : [])].map((t, i) => (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className={cn("flex gap-2", t.role === "user" && "flex-row-reverse")}
-                >
-                  <span className="mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-muted">
-                    {t.role === "user" ? <User className="h-4 w-4" /> : <Bot className="h-4 w-4" />}
+              {turns.map((t, i) => (
+                <motion.div key={i} initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} className={cn("flex gap-2", t.role === "user" && "flex-row-reverse")}>
+                  <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border bg-background">
+                    {t.role === "user" ? <User className="h-3.5 w-3.5" /> : <Bot className="h-3.5 w-3.5" />}
                   </span>
                   <p
                     className={cn(
-                      "max-w-[80%] rounded-2xl px-4 py-2 text-sm",
-                      t.role === "user" ? "bg-blue-600 text-white" : "bg-muted",
+                      "max-w-[80%] rounded-lg px-3 py-2 text-sm",
+                      t.role === "user" ? "bg-primary text-primary-foreground" : "bg-muted",
                       t.partial && "opacity-60"
                     )}
                   >

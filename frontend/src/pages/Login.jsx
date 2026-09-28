@@ -1,10 +1,13 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Loader2, Mail, Lock } from "lucide-react";
+import { Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Alert, Field } from "@/components/common";
+import AuthCard from "@/components/AuthCard";
+import GoogleButton, { OrDivider } from "@/components/GoogleButton";
 import { useAuth } from "@/context/AuthContext";
 import { errorMessage } from "@/lib/api";
-import { AuthLayout, Field } from "./SignUp";
-import { GradientButton } from "@/components/common";
 
 export default function Login() {
   const { login } = useAuth();
@@ -29,42 +32,47 @@ export default function Login() {
   };
 
   return (
-    <AuthLayout
+    <AuthCard
       title="Welcome back"
-      subtitle="Log in to keep your streak alive."
+      subtitle="Log in to continue your practice."
       footer={
         <>
-          New to Prepify?{" "}
-          <Link to="/signup" state={location.state} className="font-semibold text-blue-600 hover:underline dark:text-blue-400">
-            Create an account
+          Don't have an account?{" "}
+          <Link to="/signup" state={location.state} className="font-medium text-foreground underline-offset-4 hover:underline">
+            Sign up
           </Link>
         </>
       }
     >
+      <GoogleButton text="signin_with" onError={setError} />
+      <OrDivider />
       <form onSubmit={onSubmit} className="space-y-4">
-        <Field
-          icon={Mail}
-          label="Email"
-          type="email"
-          autoComplete="email"
-          value={form.email}
-          onChange={(e) => setForm({ ...form, email: e.target.value })}
-          required
-        />
-        <Field
-          icon={Lock}
-          label="Password"
-          type="password"
-          autoComplete="current-password"
-          value={form.password}
-          onChange={(e) => setForm({ ...form, password: e.target.value })}
-          required
-        />
-        {error && <p className="rounded-lg bg-red-50 p-3 text-sm text-red-700 dark:bg-red-950/40 dark:text-red-300">{error}</p>}
-        <GradientButton type="submit" disabled={busy} className="w-full">
+        <Field label="Email" htmlFor="email">
+          <Input
+            id="email"
+            type="email"
+            autoComplete="email"
+            placeholder="you@example.com"
+            value={form.email}
+            onChange={(e) => setForm({ ...form, email: e.target.value })}
+            required
+          />
+        </Field>
+        <Field label="Password" htmlFor="password">
+          <Input
+            id="password"
+            type="password"
+            autoComplete="current-password"
+            value={form.password}
+            onChange={(e) => setForm({ ...form, password: e.target.value })}
+            required
+          />
+        </Field>
+        {error && <Alert>{error}</Alert>}
+        <Button type="submit" size="lg" disabled={busy} className="w-full">
           {busy && <Loader2 className="animate-spin" />} Log in
-        </GradientButton>
+        </Button>
       </form>
-    </AuthLayout>
+    </AuthCard>
   );
 }

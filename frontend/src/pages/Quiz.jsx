@@ -4,7 +4,8 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "framer-motion";
 import { ChevronLeft, ChevronRight, Clock, Loader2, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ErrorState, LevelBadge, Spinner } from "@/components/common";
+import { Alert, ErrorState, LevelBadge, Spinner } from "@/components/common";
+import FocusHeader from "@/components/layout/FocusHeader";
 import { useAuth } from "@/context/AuthContext";
 import { api, errorMessage } from "@/lib/api";
 import { formatClock } from "@/lib/format";
@@ -110,8 +111,8 @@ export default function Quiz() {
     return () => window.removeEventListener("keydown", onKey);
   }, [questions, choose, go]);
 
-  if (isLoading) return <Spinner label="Loading your interview…" />;
-  if (error) return <ErrorState message={errorMessage(error)} />;
+  if (isLoading) return <Spinner label="Loading your quiz…" />;
+  if (error) return <div className="p-8"><ErrorState message={errorMessage(error)} /></div>;
   if (session?.status === "completed") return <Navigate to={`/sessions/${id}`} replace />;
 
   const q = questions[index];
@@ -119,110 +120,112 @@ export default function Quiz() {
   const lowTime = remaining < 60;
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-8">
-      <div className="mb-6 flex items-center justify-between gap-4">
-        <div className="min-w-0">
-          <h1 className="truncate text-xl font-semibold">{session.config?.domain}</h1>
-          <div className="mt-1 flex items-center gap-2 text-sm text-muted-foreground">
-            <LevelBadge level={session.config?.level} /> {answered}/{questions.length} answered
-          </div>
-        </div>
-        <div
+    <div className="min-h-screen">
+      <FocusHeader backTo="/setup" backLabel="Exit" title={session.config?.domain}>
+        <span className="tabular hidden text-xs text-muted-foreground sm:inline">
+          {answered}/{questions.length} answered
+        </span>
+        <span
           className={cn(
-            "flex items-center gap-2 rounded-full px-4 py-2 font-mono text-lg font-semibold tabular-nums",
-            lowTime ? "animate-pulse bg-red-500/15 text-red-600 dark:text-red-400" : "bg-muted"
+            "tabular flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-sm font-medium",
+            lowTime && "border-rose-500/40 bg-rose-500/10 text-rose-600 dark:text-rose-400"
           )}
           aria-live="polite"
         >
-          <Clock className="h-4 w-4" /> {formatClock(remaining)}
+          <Clock className="h-3.5 w-3.5" /> {formatClock(remaining)}
+        </span>
+      </FocusHeader>
+      <div className="h-0.5 bg-muted">
+        <div className="h-full bg-primary transition-[width] duration-300" style={{ width: `${(answered / questions.length) * 100}%` }} />
+      </div>
+
+      <div className="mx-auto max-w-2xl px-4 py-10">
+        <div className="mb-8 flex flex-wrap gap-1.5" aria-label="Questions">
+          {questions.map((qq, i) => (
+            <button
+              key={qq.id}
+              onClick={() => go(i)}
+              aria-label={`Question ${i + 1}${answers[qq.id] ? ", answered" : ""}`}
+              aria-current={i === index}
+              className={cn(
+                "tabular h-8 w-8 rounded-md border text-xs font-medium transition",
+                answers[qq.id] ? "border-primary/40 bg-primary/10 text-primary" : "text-muted-foreground hover:bg-accent",
+                i === index && "ring-2 ring-ring ring-offset-2 ring-offset-background"
+              )}
+            >
+              {i + 1}
+            </button>
+          ))}
         </div>
-      </div>
 
-      {/* Question navigator */}
-      <div className="mb-6 flex flex-wrap gap-2">
-        {questions.map((qq, i) => (
-          <button
-            key={qq.id}
-            onClick={() => go(i)}
-            aria-label={`Question ${i + 1}`}
-            className={cn(
-              "h-9 w-9 rounded-lg border text-sm font-medium transition",
-              i === index && "ring-2 ring-blue-500",
-              answers[qq.id] ? "border-blue-500 bg-blue-500 text-white" : "hover:bg-accent"
-            )}
-          >
-            {i + 1}
-          </button>
-        ))}
-      </div>
-
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={q.id}
-          initial={{ opacity: 0, x: 24 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -24 }}
-          transition={{ duration: 0.18 }}
-          className="rounded-2xl border bg-card p-6 shadow-sm"
-        >
-          <p className="mb-1 text-sm text-muted-foreground">
-            Question {index + 1} of {questions.length}
-            {q.topic && <span className="ml-2 rounded-full bg-muted px-2 py-0.5 text-xs">{q.topic}</span>}
-          </p>
-          <h2 className="mb-6 text-lg font-medium leading-relaxed">{q.question}</h2>
-          <ul className="space-y-3">
-            {q.options.map((opt, i) => {
-              const selected = answers[q.id] === opt;
-              return (
-                <li key={opt}>
-                  <button
-                    onClick={() => choose(q.id, opt)}
-                    className={cn(
-                      "flex w-full items-start gap-3 rounded-xl border p-4 text-left transition",
-                      selected ? "border-blue-500 bg-blue-50 dark:bg-blue-950/40" : "hover:bg-accent"
-                    )}
-                  >
-                    <span
+        <AnimatePresence mode="wait">
+          <motion.div key={q.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}>
+            <div className="mb-3 flex items-center gap-2 text-xs text-muted-foreground">
+              <span className="tabular">
+                Question {index + 1} of {questions.length}
+              </span>
+              {q.topic && <span className="rounded-md border px-1.5 py-0.5">{q.topic}</span>}
+              <LevelBadge level={session.config?.level} />
+            </div>
+            <h2 className="mb-6 text-lg font-medium leading-relaxed sm:text-xl">{q.question}</h2>
+            <ul className="space-y-2.5">
+              {q.options.map((opt, i) => {
+                const selected = answers[q.id] === opt;
+                return (
+                  <li key={`${i}-${opt}`}>
+                    <button
+                      onClick={() => choose(q.id, opt)}
+                      aria-pressed={selected}
                       className={cn(
-                        "flex h-6 w-6 shrink-0 items-center justify-center rounded-md border text-xs font-semibold",
-                        selected && "border-blue-500 bg-blue-500 text-white"
+                        "flex w-full items-start gap-3 rounded-lg border bg-card px-4 py-3.5 text-left text-sm transition",
+                        selected ? "border-primary ring-1 ring-primary" : "hover:border-foreground/20 hover:bg-accent/40"
                       )}
                     >
-                      {i + 1}
-                    </span>
-                    <span>{opt}</span>
-                  </button>
-                </li>
-              );
-            })}
-          </ul>
-        </motion.div>
-      </AnimatePresence>
+                      <span
+                        className={cn(
+                          "tabular flex h-5 w-5 shrink-0 items-center justify-center rounded border text-[11px] font-medium",
+                          selected ? "border-primary bg-primary text-primary-foreground" : "text-muted-foreground"
+                        )}
+                      >
+                        {i + 1}
+                      </span>
+                      <span className="leading-relaxed">{opt}</span>
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          </motion.div>
+        </AnimatePresence>
 
-      <div className="mt-6 flex items-center justify-between">
-        <Button variant="outline" onClick={() => go(index - 1)} disabled={index === 0}>
-          <ChevronLeft /> Previous
-        </Button>
-        <span className="hidden text-xs text-muted-foreground sm:block">Keys 1–4 answer · ← → navigate</span>
-        {index < questions.length - 1 ? (
-          <Button onClick={() => go(index + 1)}>
-            Next <ChevronRight />
+        <div className="mt-8 flex items-center justify-between gap-3">
+          <Button variant="outline" onClick={() => go(index - 1)} disabled={index === 0}>
+            <ChevronLeft /> Previous
           </Button>
-        ) : (
-          <Button onClick={submit} disabled={submitting} className="bg-gradient-to-r from-blue-600 to-purple-600 text-white">
-            {submitting ? <Loader2 className="animate-spin" /> : <Send />} Submit
-          </Button>
-        )}
-      </div>
-
-      {answered === questions.length && index < questions.length - 1 && (
-        <div className="mt-4 text-center">
-          <Button variant="link" onClick={submit} disabled={submitting}>
-            All answered — submit now
-          </Button>
+          <span className="hidden text-xs text-muted-foreground sm:block">
+            <kbd className="rounded border px-1">1</kbd>–<kbd className="rounded border px-1">4</kbd> answer · <kbd className="rounded border px-1">←</kbd>{" "}
+            <kbd className="rounded border px-1">→</kbd> move
+          </span>
+          {index < questions.length - 1 ? (
+            <Button variant="outline" onClick={() => go(index + 1)}>
+              Next <ChevronRight />
+            </Button>
+          ) : (
+            <Button onClick={submit} disabled={submitting}>
+              {submitting ? <Loader2 className="animate-spin" /> : <Send />} Submit
+            </Button>
+          )}
         </div>
-      )}
-      {submitError && <p className="mt-4 text-center text-sm text-red-600 dark:text-red-400">{submitError}</p>}
+
+        {answered === questions.length && index < questions.length - 1 && (
+          <div className="mt-6 text-center">
+            <Button onClick={submit} disabled={submitting}>
+              {submitting ? <Loader2 className="animate-spin" /> : <Send />} All answered — submit
+            </Button>
+          </div>
+        )}
+        {submitError && <Alert className="mt-6">{submitError}</Alert>}
+      </div>
     </div>
   );
 }

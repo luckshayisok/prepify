@@ -1,174 +1,137 @@
 import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
-import { ArrowRight, Brain, Code2, FileText, Flame, LineChart, Mic, Sparkles, Trophy } from "lucide-react";
+import { ArrowRight, Brain, Check, Code2, FileText, Flame, LineChart, Mic, Trophy } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Logo, ProgressBar } from "@/components/common";
 import { useAuth } from "@/context/AuthContext";
-import { GradientButton } from "@/components/common";
 
 const FEATURES = [
-  {
-    icon: Mic,
-    title: "Voice AI interviewer",
-    text: "Have a real spoken interview with an AI. Get scored on communication, accuracy, STAR structure, confidence and filler words.",
-    accent: "from-purple-500 to-fuchsia-600",
-  },
-  {
-    icon: Brain,
-    title: "Adaptive MCQ rounds",
-    text: "AI-generated questions on any topic and difficulty, with explanations and a topic-by-topic weak-area breakdown.",
-    accent: "from-blue-500 to-indigo-600",
-  },
-  {
-    icon: Code2,
-    title: "Coding round",
-    text: "Solve DSA problems in JavaScript or Python in a VS Code-grade editor, with hidden tests and AI code review.",
-    accent: "from-emerald-500 to-teal-600",
-  },
-  {
-    icon: FileText,
-    title: "Resume-aware questions",
-    text: "Upload your resume and a job description. Interviews target your real projects and the gaps the role cares about.",
-    accent: "from-amber-500 to-orange-600",
-  },
-  {
-    icon: LineChart,
-    title: "Progress dashboard",
-    text: "Score trends, strongest and weakest topics, an activity heatmap and every past report in one place.",
-    accent: "from-sky-500 to-blue-600",
-  },
-  {
-    icon: Trophy,
-    title: "XP, streaks & badges",
-    text: "Level up, keep your daily streak alive, unlock badges and climb the leaderboard.",
-    accent: "from-rose-500 to-pink-600",
-  },
+  { icon: Mic, title: "Voice interviews", text: "Talk to an AI interviewer. Get scored on communication, accuracy, structure, confidence and filler words." },
+  { icon: Brain, title: "MCQ rounds", text: "Timed, AI-generated questions on any topic, with explanations and a per-topic breakdown." },
+  { icon: Code2, title: "Coding round", text: "DSA problems in JavaScript or Python with hidden tests and AI code review." },
+  { icon: FileText, title: "Resume-aware", text: "Upload your resume and a job description to get questions about your real projects." },
+  { icon: LineChart, title: "Progress tracking", text: "Score trends, weak topics, an activity heatmap and every past report." },
+  { icon: Trophy, title: "XP & streaks", text: "Level up, keep a daily streak, unlock badges and climb the leaderboard." },
 ];
 
-const STEPS = [
-  ["Pick a mode", "MCQ, voice or coding — personalized from your resume if you like."],
-  ["Practice for real", "Timed questions, a live AI interviewer, or a real code editor."],
-  ["Get a sharp report", "Scores, explanations, weak topics and concrete next steps."],
-];
-
-const fadeUp = (delay = 0) => ({
-  initial: { opacity: 0, y: 24 },
-  whileInView: { opacity: 1, y: 0 },
-  viewport: { once: true },
-  transition: { duration: 0.5, delay },
-});
+// A static, illustrative preview of the dashboard.
+function ProductPreview() {
+  const bars = [42, 55, 48, 63, 70, 66, 78, 84];
+  return (
+    <div className="overflow-hidden rounded-xl border bg-card shadow-2xl shadow-black/5">
+      <div className="flex items-center gap-1.5 border-b px-4 py-3">
+        <span className="h-2.5 w-2.5 rounded-full bg-muted-foreground/20" />
+        <span className="h-2.5 w-2.5 rounded-full bg-muted-foreground/20" />
+        <span className="h-2.5 w-2.5 rounded-full bg-muted-foreground/20" />
+      </div>
+      <div className="grid gap-4 p-5 sm:grid-cols-3">
+        <div className="rounded-lg border p-4">
+          <p className="text-xs text-muted-foreground">Level 5</p>
+          <p className="tabular mt-1 text-xl font-semibold">1,040 XP</p>
+          <ProgressBar value={40} className="mt-3" />
+        </div>
+        <div className="rounded-lg border p-4">
+          <p className="text-xs text-muted-foreground">Streak</p>
+          <p className="mt-1 flex items-center gap-1.5 text-xl font-semibold">
+            <Flame className="h-5 w-5 text-orange-500" /> 7 days
+          </p>
+        </div>
+        <div className="rounded-lg border p-4">
+          <p className="text-xs text-muted-foreground">Voice score</p>
+          <p className="tabular mt-1 text-xl font-semibold">
+            86% <span className="text-sm font-medium text-emerald-600">+12</span>
+          </p>
+        </div>
+        <div className="rounded-lg border p-4 sm:col-span-3">
+          <p className="mb-4 text-xs text-muted-foreground">Score trend</p>
+          <div className="flex h-24 items-end gap-2">
+            {bars.map((h, i) => (
+              <div key={i} className="flex-1 rounded-t bg-primary/80" style={{ height: `${h}%`, opacity: 0.35 + i * 0.08 }} />
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function Home() {
   const { user } = useAuth();
   const cta = user ? "/dashboard" : "/signup";
 
   return (
-    <div className="overflow-hidden">
-      {/* Hero */}
-      <section className="relative">
-        <div className="pointer-events-none absolute -right-40 -top-40 h-[28rem] w-[28rem] rounded-full bg-gradient-to-br from-blue-500 to-purple-600 opacity-20 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-40 -left-40 h-[28rem] w-[28rem] rounded-full bg-gradient-to-br from-purple-500 to-pink-600 opacity-20 blur-3xl" />
-        <div className="relative mx-auto max-w-5xl px-6 pb-20 pt-20 text-center sm:pt-28">
-          <motion.span
-            {...fadeUp()}
-            className="mb-6 inline-flex items-center gap-2 rounded-full border bg-card/60 px-4 py-1.5 text-sm text-muted-foreground backdrop-blur"
-          >
-            <Sparkles className="h-4 w-4 text-amber-500" /> Now with voice interviews & coding rounds
-          </motion.span>
-          <motion.h1 {...fadeUp(0.1)} className="text-5xl font-bold leading-tight tracking-tight sm:text-7xl">
+    <div>
+      <section className="mx-auto max-w-6xl px-4 pb-20 pt-16 sm:px-8 sm:pt-24">
+        <div className="mx-auto max-w-3xl text-center">
+          <p className="mb-5 inline-flex items-center gap-2 rounded-full border bg-card px-3 py-1 text-xs font-medium text-muted-foreground shadow-xs">
+            <span className="h-1.5 w-1.5 rounded-full bg-primary" /> Voice interviews and coding rounds are live
+          </p>
+          <h1 className="text-4xl font-semibold leading-[1.1] tracking-tight sm:text-6xl">
             Practice interviews
-            <span className="block bg-gradient-to-r from-blue-600 via-purple-600 to-fuchsia-600 bg-clip-text text-transparent">
-              like they're real
-            </span>
-          </motion.h1>
-          <motion.p {...fadeUp(0.2)} className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground sm:text-xl">
-            Prepify is your AI interview coach: talk to a voice interviewer, crush timed quizzes, solve coding problems, and see
-            exactly what to fix next.
-          </motion.p>
-          <motion.div {...fadeUp(0.3)} className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
-            <GradientButton as={Link} to={cta} className="h-12 px-8 text-lg">
-              {user ? "Go to dashboard" : "Start practicing free"} <ArrowRight />
-            </GradientButton>
-            {!user && (
-              <Link to="/login" className="rounded-xl px-6 py-3 font-medium text-muted-foreground hover:text-foreground">
-                I have an account
+            <br />
+            <span className="text-muted-foreground">until they feel easy.</span>
+          </h1>
+          <p className="mx-auto mt-6 max-w-xl text-base text-muted-foreground sm:text-lg">
+            An AI interview coach for voice, MCQ and coding rounds — with honest feedback and a clear view of what to fix next.
+          </p>
+          <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+            <Button asChild size="xl">
+              <Link to={cta}>
+                {user ? "Open dashboard" : "Start practicing — it's free"} <ArrowRight />
               </Link>
+            </Button>
+            {!user && (
+              <Button asChild size="xl" variant="ghost">
+                <Link to="/login">Log in</Link>
+              </Button>
             )}
-          </motion.div>
+          </div>
+          <ul className="mt-6 flex flex-wrap justify-center gap-x-5 gap-y-2 text-xs text-muted-foreground">
+            {["No credit card", "Sign in with Google", "Personalized from your resume"].map((t) => (
+              <li key={t} className="flex items-center gap-1.5">
+                <Check className="h-3.5 w-3.5" /> {t}
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div className="mx-auto mt-16 max-w-4xl">
+          <ProductPreview />
+        </div>
+      </section>
 
-          {/* Mock preview */}
-          <motion.div {...fadeUp(0.4)} className="mx-auto mt-16 grid max-w-3xl gap-4 text-left sm:grid-cols-3">
-            {[
-              { icon: Flame, label: "Streak", value: "7 days", tone: "text-orange-500" },
-              { icon: Trophy, label: "Level", value: "Lv 5 · 1,040 XP", tone: "text-purple-500" },
-              { icon: LineChart, label: "Voice score", value: "86% ↑12", tone: "text-emerald-500" },
-            ].map(({ icon: Icon, label, value, tone }) => (
-              <div key={label} className="rounded-2xl border bg-card/70 p-5 shadow-lg backdrop-blur">
-                <p className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Icon className={`h-4 w-4 ${tone}`} /> {label}
-                </p>
-                <p className="mt-1 text-xl font-bold">{value}</p>
+      <section className="border-t bg-muted/30">
+        <div className="mx-auto max-w-6xl px-4 py-20 sm:px-8">
+          <div className="mb-12 max-w-xl">
+            <h2 className="text-3xl font-semibold">Everything you need to prepare</h2>
+            <p className="mt-3 text-muted-foreground">Three ways to practice, one place to track progress.</p>
+          </div>
+          <div className="grid gap-px overflow-hidden rounded-xl border bg-border sm:grid-cols-2 lg:grid-cols-3">
+            {FEATURES.map(({ icon: Icon, title, text }) => (
+              <div key={title} className="bg-card p-6">
+                <Icon className="mb-4 h-5 w-5 text-primary" />
+                <h3 className="font-medium">{title}</h3>
+                <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{text}</p>
               </div>
             ))}
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Features */}
-      <section className="border-y bg-muted/30 py-20">
-        <div className="mx-auto max-w-6xl px-6">
-          <motion.div {...fadeUp()} className="mb-12 text-center">
-            <h2 className="text-4xl font-bold">Everything you need to get the offer</h2>
-            <p className="mt-3 text-lg text-muted-foreground">Four ways to practice, one place to track it all.</p>
-          </motion.div>
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {FEATURES.map(({ icon: Icon, title, text, accent }, i) => (
-              <motion.div
-                key={title}
-                {...fadeUp(i * 0.05)}
-                className="group rounded-2xl border bg-card p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-xl"
-              >
-                <span className={`mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br ${accent} text-white transition group-hover:scale-110`}>
-                  <Icon className="h-6 w-6" />
-                </span>
-                <h3 className="mb-2 text-lg font-semibold">{title}</h3>
-                <p className="text-sm leading-relaxed text-muted-foreground">{text}</p>
-              </motion.div>
-            ))}
           </div>
         </div>
       </section>
 
-      {/* How it works */}
-      <section className="py-20">
-        <div className="mx-auto max-w-5xl px-6">
-          <motion.h2 {...fadeUp()} className="mb-12 text-center text-4xl font-bold">
-            How it works
-          </motion.h2>
-          <div className="grid gap-6 md:grid-cols-3">
-            {STEPS.map(([title, text], i) => (
-              <motion.div key={title} {...fadeUp(i * 0.1)} className="rounded-2xl border bg-card p-6">
-                <span className="mb-4 flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-blue-600 to-purple-600 font-bold text-white">
-                  {i + 1}
-                </span>
-                <h3 className="mb-1 font-semibold">{title}</h3>
-                <p className="text-sm text-muted-foreground">{text}</p>
-              </motion.div>
-            ))}
-          </div>
-          <motion.div {...fadeUp()} className="mt-14 text-center">
-            <GradientButton as={Link} to={cta} className="h-12 px-8">
-              {user ? "Continue practicing" : "Create your free account"} <ArrowRight />
-            </GradientButton>
-          </motion.div>
+      <section className="border-t">
+        <div className="mx-auto flex max-w-6xl flex-col items-center px-4 py-20 text-center sm:px-8">
+          <h2 className="text-3xl font-semibold">Your next interview starts here.</h2>
+          <p className="mt-3 text-muted-foreground">Set up in under a minute.</p>
+          <Button asChild size="xl" className="mt-8">
+            <Link to={cta}>
+              {user ? "Continue practicing" : "Create free account"} <ArrowRight />
+            </Link>
+          </Button>
         </div>
       </section>
 
-      <footer className="border-t py-10">
-        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-6 text-sm text-muted-foreground sm:flex-row">
-          <span className="flex items-center gap-2 font-semibold text-foreground">
-            <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-blue-600 to-purple-600 text-xs text-white">P</span>
-            Prepify
-          </span>
-          <span>© {new Date().getFullYear()} Prepify · Your AI interview coach</span>
+      <footer className="border-t">
+        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-3 px-4 py-8 text-xs text-muted-foreground sm:flex-row sm:px-8">
+          <Logo />
+          <span>© {new Date().getFullYear()} Prepify</span>
         </div>
       </footer>
     </div>

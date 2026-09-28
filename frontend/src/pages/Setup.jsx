@@ -1,62 +1,58 @@
 import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { motion } from "framer-motion";
-import { BookOpen, Briefcase, Clock, Hash, Loader2, Play, Target } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Loader2, Play } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { GradientButton, PersonalizeToggle } from "@/components/common";
+import { Alert, Field, Page, PageHeader, PersonalizeToggle, SegmentedControl } from "@/components/common";
 import { useAuth } from "@/context/AuthContext";
 import { api, errorMessage } from "@/lib/api";
-import { LEVEL_STYLES } from "@/lib/format";
+import { cn } from "@/lib/utils";
 
-const DOMAINS = [
-  "Custom",
+const POPULAR = [
   "JavaScript",
   "React",
   "Node.js",
   "Python",
   "Java",
-  "C++",
   "Data Structures",
   "Algorithms",
   "System Design",
-  "Database Management",
+  "SQL & Databases",
   "Operating Systems",
   "Computer Networks",
   "Machine Learning",
-  "HTML/CSS",
+];
+
+const LEVELS = [
+  { value: "easy", label: "Easy" },
+  { value: "medium", label: "Medium" },
+  { value: "hard", label: "Hard" },
 ];
 
 export default function Setup() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [params] = useSearchParams();
-  const preset = params.get("domain");
 
-  const [domain, setDomain] = useState(preset ? (DOMAINS.includes(preset) ? preset : "Custom") : "");
-  const [customDomain, setCustomDomain] = useState(preset && !DOMAINS.includes(preset) ? preset : "");
+  const [domain, setDomain] = useState(params.get("domain") ?? "");
   const [numQuestions, setNumQuestions] = useState(10);
   const [level, setLevel] = useState("medium");
   const [timer, setTimer] = useState(10);
   const [personalized, setPersonalized] = useState(false);
-  const [showJd, setShowJd] = useState(false);
   const [jobDescription, setJobDescription] = useState("");
+  const [showJd, setShowJd] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
 
-  const finalDomain = domain === "Custom" ? customDomain.trim() : domain;
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!finalDomain) return;
+    if (!domain.trim()) return;
     setBusy(true);
     setError("");
     try {
       const { data } = await api.post("/interviews/mcq", {
-        domain: finalDomain,
+        domain: domain.trim(),
         level,
         numQuestions: Number(numQuestions),
         timer: Number(timer),
@@ -71,122 +67,83 @@ export default function Setup() {
   };
 
   return (
-    <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center p-4 py-10">
-      <div className="w-full max-w-xl">
-        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="mb-8 text-center">
-          <h1 className="mb-2 text-3xl font-bold">MCQ Interview</h1>
-          <p className="text-lg text-muted-foreground">AI-generated, timed, and scored with a topic-by-topic breakdown.</p>
-        </motion.div>
+    <Page className="max-w-2xl">
+      <PageHeader title="MCQ quiz" description="AI-generated, timed, and scored with a topic-by-topic breakdown." />
 
-        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
-          <Card className="border-0 shadow-xl ring-1 ring-border">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-xl">
-                <Target className="h-5 w-5 text-blue-600" /> Configuration
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="space-y-3">
-                  <Label className="flex items-center gap-2">
-                    <BookOpen className="h-4 w-4" /> Domain
-                  </Label>
-                  <Select value={domain} onValueChange={setDomain}>
-                    <SelectTrigger className="h-12">
-                      <SelectValue placeholder="Choose a domain" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {DOMAINS.map((d) => (
-                        <SelectItem key={d} value={d}>
-                          {d === "Custom" ? "✏️ Custom topic…" : d}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  {domain === "Custom" && (
-                    <Input
-                      autoFocus
-                      value={customDomain}
-                      onChange={(e) => setCustomDomain(e.target.value)}
-                      placeholder="e.g. Kubernetes networking, Redux Toolkit, SQL joins"
-                      className="h-12"
-                      maxLength={80}
-                    />
-                  )}
-                </div>
+      <form onSubmit={handleSubmit} className="space-y-7 rounded-xl border bg-card p-5 shadow-xs sm:p-7">
+        <Field label="Topic" htmlFor="domain" hint="Anything works — e.g. “Kubernetes networking” or “Redux Toolkit”.">
+          <Input
+            id="domain"
+            value={domain}
+            onChange={(e) => setDomain(e.target.value)}
+            placeholder="What do you want to be quizzed on?"
+            maxLength={80}
+            className="h-10"
+            required
+          />
+          <div className="flex flex-wrap gap-1.5 pt-1">
+            {POPULAR.map((d) => (
+              <button
+                type="button"
+                key={d}
+                onClick={() => setDomain(d)}
+                className={cn(
+                  "rounded-md border px-2 py-1 text-xs transition",
+                  domain === d ? "border-primary bg-primary/10 text-primary" : "text-muted-foreground hover:bg-accent hover:text-foreground"
+                )}
+              >
+                {d}
+              </button>
+            ))}
+          </div>
+        </Field>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-3">
-                    <Label className="flex items-center gap-2">
-                      <Hash className="h-4 w-4" /> Questions
-                    </Label>
-                    <Input type="number" min="1" max="20" value={numQuestions} onChange={(e) => setNumQuestions(e.target.value)} className="h-12" />
-                  </div>
-                  <div className="space-y-3">
-                    <Label className="flex items-center gap-2">
-                      <Clock className="h-4 w-4" /> Minutes
-                    </Label>
-                    <Input type="number" min="1" max="120" value={timer} onChange={(e) => setTimer(e.target.value)} className="h-12" />
-                  </div>
-                </div>
+        <Field label="Difficulty">
+          <SegmentedControl aria-label="Difficulty" value={level} onChange={setLevel} options={LEVELS} />
+        </Field>
 
-                <div className="space-y-3">
-                  <Label>Difficulty</Label>
-                  <div className="grid grid-cols-3 gap-2">
-                    {["easy", "medium", "hard"].map((l) => (
-                      <button
-                        type="button"
-                        key={l}
-                        onClick={() => setLevel(l)}
-                        className={`h-11 rounded-xl border text-sm font-medium capitalize transition ${
-                          level === l ? `${LEVEL_STYLES[l]} border-current ring-2 ring-current/20` : "hover:bg-accent"
-                        }`}
-                      >
-                        {l}
-                      </button>
-                    ))}
-                  </div>
-                </div>
+        <div className="grid grid-cols-2 gap-4">
+          <Field label="Questions" htmlFor="count">
+            <Input id="count" type="number" min="1" max="20" value={numQuestions} onChange={(e) => setNumQuestions(e.target.value)} className="h-10" />
+          </Field>
+          <Field label="Time limit (min)" htmlFor="timer">
+            <Input id="timer" type="number" min="1" max="120" value={timer} onChange={(e) => setTimer(e.target.value)} className="h-10" />
+          </Field>
+        </div>
 
-                <PersonalizeToggle checked={personalized} onChange={setPersonalized} hasResume={user?.hasResume} />
+        <PersonalizeToggle checked={personalized} onChange={setPersonalized} hasResume={user?.hasResume} />
 
-                <div>
-                  <button
-                    type="button"
-                    onClick={() => setShowJd((s) => !s)}
-                    className="flex items-center gap-2 text-sm font-medium text-blue-600 hover:underline dark:text-blue-400"
-                  >
-                    <Briefcase className="h-4 w-4" /> {showJd ? "Remove" : "Add"} a job description (optional)
-                  </button>
-                  {showJd && (
-                    <Textarea
-                      className="mt-3 min-h-28"
-                      placeholder="Paste the job posting — questions will focus on what it asks for."
-                      value={jobDescription}
-                      onChange={(e) => setJobDescription(e.target.value)}
-                      maxLength={5000}
-                    />
-                  )}
-                </div>
+        <div>
+          <button
+            type="button"
+            onClick={() => setShowJd((s) => !s)}
+            className="text-sm font-medium text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+          >
+            {showJd ? "− Remove job description" : "+ Add a job description (optional)"}
+          </button>
+          {showJd && (
+            <Textarea
+              className="mt-3 min-h-28"
+              placeholder="Paste the job posting — questions will focus on what it asks for."
+              value={jobDescription}
+              onChange={(e) => setJobDescription(e.target.value)}
+              maxLength={5000}
+            />
+          )}
+        </div>
 
-                {error && <p className="rounded-lg bg-red-50 p-3 text-sm text-red-700 dark:bg-red-950/40 dark:text-red-300">{error}</p>}
+        {error && <Alert>{error}</Alert>}
 
-                <GradientButton type="submit" disabled={!finalDomain || busy} className="h-12 w-full">
-                  {busy ? (
-                    <>
-                      <Loader2 className="animate-spin" /> Generating your questions…
-                    </>
-                  ) : (
-                    <>
-                      <Play /> Begin interview
-                    </>
-                  )}
-                </GradientButton>
-              </form>
-            </CardContent>
-          </Card>
-        </motion.div>
-      </div>
-    </div>
+        <div className="flex items-center justify-between gap-4 border-t pt-5">
+          <p className="tabular text-xs text-muted-foreground">
+            {numQuestions} questions · {timer} min · <span className="capitalize">{level}</span>
+          </p>
+          <Button type="submit" size="lg" disabled={!domain.trim() || busy}>
+            {busy ? <Loader2 className="animate-spin" /> : <Play />}
+            {busy ? "Generating…" : "Start quiz"}
+          </Button>
+        </div>
+      </form>
+    </Page>
   );
 }

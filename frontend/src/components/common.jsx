@@ -1,64 +1,113 @@
 import { Link } from "react-router-dom";
-import { Loader2 } from "lucide-react";
+import { AlertCircle, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { LEVEL_STYLES, MODES, scoreTone } from "@/lib/format";
+import { LEVEL_DOTS, MODES } from "@/lib/format";
 
-export function Page({ className, children }) {
-  return <main className={cn("mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 lg:py-12", className)}>{children}</main>;
+export function Logo({ className, to = "/" }) {
+  return (
+    <Link to={to} className={cn("flex items-center gap-2 font-semibold tracking-tight", className)}>
+      <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary text-sm font-bold text-primary-foreground">P</span>
+      <span className="text-[15px]">Prepify</span>
+    </Link>
+  );
 }
 
-export function PageHeader({ eyebrow, title, description, actions }) {
+export function Page({ className, children }) {
+  return <div className={cn("mx-auto w-full max-w-6xl px-4 py-8 sm:px-8 lg:py-10", className)}>{children}</div>;
+}
+
+export function PageHeader({ title, description, actions, className }) {
   return (
-    <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-      <div>
-        {eyebrow && <p className="mb-1 text-sm font-medium text-blue-600 dark:text-blue-400">{eyebrow}</p>}
-        <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">{title}</h1>
-        {description && <p className="mt-2 max-w-2xl text-muted-foreground">{description}</p>}
+    <div className={cn("mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between", className)}>
+      <div className="min-w-0">
+        <h1 className="text-2xl font-semibold sm:text-[28px]">{title}</h1>
+        {description && <p className="mt-1.5 max-w-2xl text-sm text-muted-foreground sm:text-[15px]">{description}</p>}
       </div>
       {actions && <div className="flex shrink-0 flex-wrap gap-2">{actions}</div>}
     </div>
   );
 }
 
+export function Section({ title, description, icon: Icon, action, className, children, padded = true }) {
+  return (
+    <section className={cn("rounded-xl border bg-card shadow-xs", className)}>
+      {(title || action) && (
+        <div className="flex items-center justify-between gap-4 border-b px-5 py-3.5">
+          <div className="min-w-0">
+            <h2 className="flex items-center gap-2 text-sm font-semibold">
+              {Icon && <Icon className="h-4 w-4 text-muted-foreground" />}
+              {title}
+            </h2>
+            {description && <p className="mt-0.5 text-xs text-muted-foreground">{description}</p>}
+          </div>
+          {action}
+        </div>
+      )}
+      <div className={cn(padded && "p-5")}>{children}</div>
+    </section>
+  );
+}
+
 export function Spinner({ label, className }) {
   return (
-    <div className={cn("flex flex-col items-center justify-center gap-3 py-20 text-muted-foreground", className)}>
-      <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
-      {label && <p className="text-sm">{label}</p>}
+    <div className={cn("flex flex-col items-center justify-center gap-3 py-24 text-sm text-muted-foreground", className)}>
+      <Loader2 className="h-5 w-5 animate-spin" />
+      {label && <p>{label}</p>}
     </div>
+  );
+}
+
+export function Skeleton({ className }) {
+  return <div className={cn("animate-pulse rounded-lg bg-muted", className)} />;
+}
+
+export function PageSkeleton() {
+  return (
+    <Page>
+      <Skeleton className="mb-3 h-7 w-56" />
+      <Skeleton className="mb-8 h-4 w-80" />
+      <div className="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
+        {[0, 1, 2, 3].map((i) => (
+          <Skeleton key={i} className="h-24" />
+        ))}
+      </div>
+      <Skeleton className="h-72" />
+    </Page>
   );
 }
 
 export function ErrorState({ message, action }) {
   return (
-    <div className="mx-auto max-w-md rounded-2xl border border-red-200 bg-red-50 p-6 text-center dark:border-red-900/50 dark:bg-red-950/30">
-      <p className="font-medium text-red-700 dark:text-red-300">{message}</p>
+    <div className="mx-auto flex max-w-md flex-col items-center rounded-xl border bg-card p-8 text-center shadow-xs">
+      <AlertCircle className="mb-3 h-6 w-6 text-destructive" />
+      <p className="text-sm">{message}</p>
       {action && <div className="mt-4">{action}</div>}
     </div>
   );
 }
 
-export function EmptyState({ icon: Icon, title, description, action }) {
+export function EmptyState({ icon: Icon, title, description, action, className }) {
   return (
-    <div className="flex flex-col items-center rounded-2xl border border-dashed p-10 text-center">
-      {Icon && <Icon className="mb-3 h-10 w-10 text-muted-foreground" />}
-      <p className="font-semibold">{title}</p>
+    <div className={cn("flex flex-col items-center rounded-xl border border-dashed px-6 py-14 text-center", className)}>
+      {Icon && (
+        <span className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg border bg-card shadow-xs">
+          <Icon className="h-5 w-5 text-muted-foreground" />
+        </span>
+      )}
+      <p className="font-medium">{title}</p>
       {description && <p className="mt-1 max-w-sm text-sm text-muted-foreground">{description}</p>}
       {action && <div className="mt-5">{action}</div>}
     </div>
   );
 }
 
-export function GradientButton({ className, as: Comp = "button", ...props }) {
-  return (
-    <Comp
-      className={cn(
-        "inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 px-5 py-2.5 font-semibold text-white shadow-lg shadow-blue-600/20 transition hover:from-blue-700 hover:to-purple-700 hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-50 [&_svg]:h-4 [&_svg]:w-4",
-        className
-      )}
-      {...props}
-    />
-  );
+export function Alert({ tone = "error", children, className }) {
+  const tones = {
+    error: "border-destructive/30 bg-destructive/5 text-destructive",
+    warning: "border-amber-500/30 bg-amber-500/5 text-amber-700 dark:text-amber-400",
+    info: "border-primary/30 bg-primary/5 text-foreground",
+  };
+  return <div className={cn("rounded-lg border px-3.5 py-2.5 text-sm", tones[tone], className)}>{children}</div>;
 }
 
 export function ModeBadge({ mode, className }) {
@@ -66,23 +115,28 @@ export function ModeBadge({ mode, className }) {
   if (!m) return null;
   const Icon = m.icon;
   return (
-    <span className={cn("inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium", m.bg, m.color, className)}>
+    <span className={cn("inline-flex items-center gap-1.5 rounded-md border bg-background px-1.5 py-0.5 text-xs font-medium text-muted-foreground", className)}>
       <Icon className="h-3 w-3" /> {m.label}
     </span>
   );
 }
 
-export function LevelBadge({ level }) {
+export function LevelBadge({ level, className }) {
   if (!level) return null;
-  return <span className={cn("rounded-full px-2 py-0.5 text-xs font-medium capitalize", LEVEL_STYLES[level])}>{level}</span>;
+  return (
+    <span className={cn("inline-flex items-center gap-1.5 text-xs font-medium capitalize text-muted-foreground", className)}>
+      <span className={cn("h-1.5 w-1.5 rounded-full", LEVEL_DOTS[level])} />
+      {level}
+    </span>
+  );
 }
 
-export function ScoreRing({ score, size = 120, stroke = 10, label = "Score" }) {
+export function ScoreRing({ score, size = 112, stroke = 8, label }) {
   const r = (size - stroke) / 2;
   const c = 2 * Math.PI * r;
   const pct = Math.max(0, Math.min(100, score ?? 0));
   return (
-    <div className="relative inline-flex" style={{ width: size, height: size }}>
+    <div className="relative inline-flex shrink-0" style={{ width: size, height: size }} role="img" aria-label={`Score ${score ?? 0}%`}>
       <svg width={size} height={size} className="-rotate-90">
         <circle cx={size / 2} cy={size / 2} r={r} strokeWidth={stroke} className="fill-none stroke-muted" />
         <circle
@@ -91,33 +145,76 @@ export function ScoreRing({ score, size = 120, stroke = 10, label = "Score" }) {
           r={r}
           strokeWidth={stroke}
           strokeLinecap="round"
-          className="fill-none transition-all duration-1000"
-          style={{ stroke: "url(#ringGradient)", strokeDasharray: c, strokeDashoffset: c * (1 - pct / 100) }}
+          className="fill-none stroke-primary transition-[stroke-dashoffset] duration-1000 ease-out"
+          style={{ strokeDasharray: c, strokeDashoffset: c * (1 - pct / 100) }}
         />
-        <defs>
-          <linearGradient id="ringGradient" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="#2563eb" />
-            <stop offset="100%" stopColor="#9333ea" />
-          </linearGradient>
-        </defs>
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className={cn("font-bold", size >= 120 ? "text-3xl" : "text-xl", scoreTone(score))}>{score ?? "—"}%</span>
-        {label && <span className="text-xs text-muted-foreground">{label}</span>}
+        <span className={cn("tabular font-semibold", size >= 100 ? "text-2xl" : "text-lg")}>{score ?? "—"}%</span>
+        {label && <span className="text-[11px] text-muted-foreground">{label}</span>}
       </div>
     </div>
   );
 }
 
-export function StatCard({ icon: Icon, label, value, hint, tone = "text-blue-600 dark:text-blue-400" }) {
+export function StatCard({ icon: Icon, label, value, hint }) {
   return (
-    <div className="rounded-2xl border bg-card p-5 shadow-sm">
-      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-        {Icon && <Icon className={cn("h-4 w-4", tone)} />}
+    <div className="rounded-xl border bg-card p-4 shadow-xs sm:p-5">
+      <div className="flex items-center justify-between text-xs font-medium text-muted-foreground">
         {label}
+        {Icon && <Icon className="h-4 w-4" />}
       </div>
-      <div className="mt-2 text-3xl font-bold tracking-tight">{value}</div>
-      {hint && <div className="mt-1 text-xs text-muted-foreground">{hint}</div>}
+      <div className="tabular mt-2 text-2xl font-semibold">{value}</div>
+      {hint && <div className="mt-0.5 text-xs text-muted-foreground">{hint}</div>}
+    </div>
+  );
+}
+
+export function ProgressBar({ value, className, tone = "bg-primary" }) {
+  return (
+    <div className={cn("h-1.5 overflow-hidden rounded-full bg-muted", className)}>
+      <div className={cn("h-full rounded-full transition-[width] duration-700", tone)} style={{ width: `${Math.max(0, Math.min(100, value))}%` }} />
+    </div>
+  );
+}
+
+// Pill-style single choice: [{ value, label, hint? }]
+export function SegmentedControl({ value, onChange, options, className, "aria-label": ariaLabel }) {
+  return (
+    <div role="radiogroup" aria-label={ariaLabel} className={cn("grid gap-1 rounded-lg border bg-muted/60 p-1", className)} style={{ gridTemplateColumns: `repeat(${options.length}, minmax(0, 1fr))` }}>
+      {options.map((o) => {
+        const active = o.value === value;
+        return (
+          <button
+            key={o.value}
+            type="button"
+            role="radio"
+            aria-checked={active}
+            onClick={() => onChange(o.value)}
+            className={cn(
+              "rounded-md px-3 py-1.5 text-sm font-medium transition",
+              active ? "bg-background text-foreground shadow-xs ring-1 ring-border" : "text-muted-foreground hover:text-foreground"
+            )}
+          >
+            {o.label}
+            {o.hint && <span className="block text-[11px] font-normal text-muted-foreground">{o.hint}</span>}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+export function Field({ label, hint, htmlFor, children, className }) {
+  return (
+    <div className={cn("space-y-1.5", className)}>
+      {label && (
+        <label htmlFor={htmlFor} className="text-sm font-medium">
+          {label}
+        </label>
+      )}
+      {children}
+      {hint && <p className="text-xs text-muted-foreground">{hint}</p>}
     </div>
   );
 }
@@ -125,26 +222,49 @@ export function StatCard({ icon: Icon, label, value, hint, tone = "text-blue-600
 export function PersonalizeToggle({ checked, onChange, hasResume }) {
   if (!hasResume) {
     return (
-      <div className="rounded-xl border border-dashed p-4 text-sm text-muted-foreground">
-        <Link to="/resume" className="font-medium text-blue-600 hover:underline dark:text-blue-400">
+      <p className="rounded-lg border border-dashed px-4 py-3 text-sm text-muted-foreground">
+        <Link to="/resume" className="font-medium text-foreground underline-offset-4 hover:underline">
           Upload your resume
         </Link>{" "}
-        to get questions about your own projects and skills (+10% XP).
-      </div>
+        to get questions about your own projects (+10% XP).
+      </p>
     );
   }
   return (
-    <label className="flex cursor-pointer items-start gap-3 rounded-xl border p-4 transition hover:bg-accent/50">
-      <input
-        type="checkbox"
-        className="mt-0.5 h-4 w-4 accent-blue-600"
-        checked={checked}
-        onChange={(e) => onChange(e.target.checked)}
-      />
+    <label className="flex cursor-pointer items-start gap-3 rounded-lg border px-4 py-3 transition hover:bg-accent/50">
+      <input type="checkbox" className="mt-0.5 h-4 w-4 accent-[hsl(var(--primary))]" checked={checked} onChange={(e) => onChange(e.target.checked)} />
       <span>
         <span className="block text-sm font-medium">Personalize from my resume</span>
-        <span className="block text-xs text-muted-foreground">Questions target your projects and skills. +10% XP.</span>
+        <span className="block text-xs text-muted-foreground">Questions target your projects and skills · +10% XP</span>
       </span>
     </label>
   );
 }
+
+export function Avatar({ user, size = 32, className }) {
+  const initials = (user?.name ?? "?")
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((p) => p[0]?.toUpperCase())
+    .join("");
+  if (user?.avatarUrl) {
+    return (
+      <img
+        src={user.avatarUrl}
+        alt=""
+        referrerPolicy="no-referrer"
+        className={cn("shrink-0 rounded-full object-cover", className)}
+        style={{ width: size, height: size }}
+      />
+    );
+  }
+  return (
+    <span
+      className={cn("flex shrink-0 items-center justify-center rounded-full bg-primary/10 font-medium text-primary", className)}
+      style={{ width: size, height: size, fontSize: size * 0.38 }}
+    >
+      {initials}
+    </span>
+  );
+}
+

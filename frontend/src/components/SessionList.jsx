@@ -9,14 +9,14 @@ export default function SessionList({ sessions }) {
     <ul className="divide-y">
       {sessions.map((s) => (
         <li key={s.id}>
-          <Link to={`/sessions/${s.id}`} className="group flex items-center gap-4 px-1 py-3 transition hover:bg-accent/40">
+          <Link to={`/sessions/${s.id}`} className="group flex items-center gap-3 px-5 py-3 transition-colors hover:bg-accent/50">
             <div className="min-w-0 flex-1">
-              <p className="truncate font-medium">{s.title}</p>
-              <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+              <p className="truncate text-sm font-medium">{s.title}</p>
+              <div className="mt-1 flex flex-wrap items-center gap-x-2.5 gap-y-1 text-xs text-muted-foreground">
                 <ModeBadge mode={s.mode} />
                 <LevelBadge level={s.level ?? s.config?.level} />
                 {s.personalized && (
-                  <span className="inline-flex items-center gap-1 text-amber-600 dark:text-amber-400">
+                  <span className="inline-flex items-center gap-1">
                     <Sparkles className="h-3 w-3" /> Personalized
                   </span>
                 )}
@@ -24,10 +24,10 @@ export default function SessionList({ sessions }) {
               </div>
             </div>
             <div className="text-right">
-              <p className={cn("text-lg font-bold tabular-nums", scoreTone(s.score))}>{s.score ?? "—"}%</p>
-              {s.xpEarned > 0 && <p className="text-xs text-muted-foreground">+{s.xpEarned} XP</p>}
+              <p className={cn("tabular text-sm font-semibold", scoreTone(s.score))}>{s.score ?? "—"}%</p>
+              {s.xpEarned > 0 && <p className="tabular text-xs text-muted-foreground">+{s.xpEarned} XP</p>}
             </div>
-            <ChevronRight className="h-4 w-4 text-muted-foreground transition group-hover:translate-x-0.5" />
+            <ChevronRight className="h-4 w-4 text-muted-foreground/60 transition group-hover:translate-x-0.5 group-hover:text-muted-foreground" />
           </Link>
         </li>
       ))}

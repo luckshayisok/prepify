@@ -1,30 +1,38 @@
 import { Brain, Code2, Mic } from "lucide-react";
 
 export const MODES = {
-  mcq: { label: "MCQ", icon: Brain, color: "text-blue-600 dark:text-blue-400", bg: "bg-blue-500/10" },
-  voice: { label: "Voice", icon: Mic, color: "text-purple-600 dark:text-purple-400", bg: "bg-purple-500/10" },
-  coding: { label: "Coding", icon: Code2, color: "text-emerald-600 dark:text-emerald-400", bg: "bg-emerald-500/10" },
+  mcq: { label: "MCQ", icon: Brain },
+  voice: { label: "Voice", icon: Mic },
+  coding: { label: "Coding", icon: Code2 },
 };
 
-export const LEVEL_STYLES = {
-  easy: "text-emerald-600 dark:text-emerald-400 bg-emerald-500/10",
-  medium: "text-amber-600 dark:text-amber-400 bg-amber-500/10",
-  hard: "text-red-600 dark:text-red-400 bg-red-500/10",
+// Difficulty is semantic, so it keeps a small colored dot.
+export const LEVEL_DOTS = {
+  easy: "bg-emerald-500",
+  medium: "bg-amber-500",
+  hard: "bg-rose-500",
 };
 
 export function scoreTone(score) {
   if (score == null) return "text-muted-foreground";
-  if (score >= 85) return "text-emerald-600 dark:text-emerald-400";
-  if (score >= 65) return "text-blue-600 dark:text-blue-400";
-  if (score >= 45) return "text-amber-600 dark:text-amber-400";
-  return "text-red-600 dark:text-red-400";
+  if (score >= 80) return "text-emerald-600 dark:text-emerald-400";
+  if (score >= 50) return "text-foreground";
+  return "text-rose-600 dark:text-rose-400";
 }
 
 export function scoreVerdict(score) {
-  if (score >= 90) return { title: "Outstanding!", message: "Interview-ready on this topic. Try a harder level next." };
-  if (score >= 70) return { title: "Strong performance", message: "Solid fundamentals. Polish the weak spots below to reach excellence." };
-  if (score >= 50) return { title: "Getting there", message: "You're on the right track — focus on the topics flagged below." };
+  if (score >= 90) return { title: "Outstanding", message: "Interview-ready on this topic. Try a harder level next." };
+  if (score >= 70) return { title: "Strong performance", message: "Solid fundamentals. Polish the weak spots below." };
+  if (score >= 50) return { title: "Getting there", message: "You're on the right track — focus on the flagged topics." };
   return { title: "Keep practicing", message: "Review the explanations below, then retry at the same level." };
+}
+
+export function greeting(date = new Date()) {
+  const h = date.getHours();
+  if (h < 5) return "Good evening";
+  if (h < 12) return "Good morning";
+  if (h < 18) return "Good afternoon";
+  return "Good evening";
 }
 
 export function formatDate(date, opts = { month: "short", day: "numeric", year: "numeric" }) {

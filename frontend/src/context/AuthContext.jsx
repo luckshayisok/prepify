@@ -55,6 +55,7 @@ export function AuthProvider({ children }) {
       refreshUser,
       login: (email, password) => authenticate("/auth/login", { email, password }),
       signup: (name, email, password) => authenticate("/auth/signup", { name, email, password }),
+      loginWithGoogle: (credential) => authenticate("/auth/google", { credential }),
       logout,
     }),
     [user, loading, refreshUser, authenticate, logout]
