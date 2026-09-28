@@ -1,45 +1,70 @@
 import { useState } from "react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Loader2, Mail, Lock } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
+import { errorMessage } from "@/lib/api";
+import { AuthLayout, Field } from "./SignUp";
+import { GradientButton } from "@/components/common";
 
-function Login() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+export default function Login() {
+  const { login } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const [form, setForm] = useState({ email: "", password: "" });
+  const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
 
-  const handleLogin = async (e) => {
+  const onSubmit = async (e) => {
     e.preventDefault();
+    setError("");
+    setBusy(true);
     try {
-      const res = await fetch("https://your-backend-url.com/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-      const data = await res.json();
-      if (res.ok) {
-        localStorage.setItem("accessToken", data.accessToken);
-        localStorage.setItem("refreshToken", data.refreshToken);
-        navigate("/dashboard"); // redirect after login
-      } else {
-        alert(data.error);
-      }
+      await login(form.email, form.password);
+      navigate(location.state?.from || "/dashboard", { replace: true });
     } catch (err) {
-      console.error(err);
-      alert("Login failed");
+      setError(errorMessage(err, "Login failed"));
+    } finally {
+      setBusy(false);
     }
   };
 
   return (
-    <div className="flex items-center justify-center h-screen bg-gray-100 dark:bg-gray-900">
-      <form onSubmit={handleLogin} className="p-6 bg-white dark:bg-gray-800 rounded-xl shadow-md w-full max-w-sm space-y-4">
-        <h2 className="text-xl font-bold text-center">Login to Prepify</h2>
-        <Input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-        <Input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-        <Button type="submit" className="w-full">Login</Button>
+    <AuthLayout
+      title="Welcome back"
+      subtitle="Log in to keep your streak alive."
+      footer={
+        <>
+          New to Prepify?{" "}
+          <Link to="/signup" state={location.state} className="font-semibold text-blue-600 hover:underline dark:text-blue-400">
+            Create an account
+          </Link>
+        </>
+      }
+    >
+      <form onSubmit={onSubmit} className="space-y-4">
+        <Field
+          icon={Mail}
+          label="Email"
+          type="email"
+          autoComplete="email"
+          value={form.email}
+          onChange={(e) => setForm({ ...form, email: e.target.value })}
+          required
+        />
+        <Field
+          icon={Lock}
+          label="Password"
+          type="password"
+          autoComplete="current-password"
+          value={form.password}
+          onChange={(e) => setForm({ ...form, password: e.target.value })}
+          required
+        />
+        {error && <p className="rounded-lg bg-red-50 p-3 text-sm text-red-700 dark:bg-red-950/40 dark:text-red-300">{error}</p>}
+        <GradientButton type="submit" disabled={busy} className="w-full">
+          {busy && <Loader2 className="animate-spin" />} Log in
+        </GradientButton>
       </form>
-    </div>
+    </AuthLayout>
   );
 }
-
-export default Login;
