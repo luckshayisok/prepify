@@ -1,37 +1,41 @@
-import { GoogleGenAI } from "@google/genai";
 import { z } from "zod";
 import { env } from "../config/env.js";
 import { HttpError } from "../utils/httpError.js";
+import { ProviderError, complete, providerLabel } from "./llm.js";
 import * as mock from "./aiMock.js";
-
-let client;
-function getClient() {
-  if (!env.geminiApiKey) throw new HttpError(503, "AI is not configured on the server (GEMINI_API_KEY missing)");
-  client ??= new GoogleGenAI({ apiKey: env.geminiApiKey });
-  return client;
-}
 
 const clip = (text = "", max = 6000) => (text.length > max ? `${text.slice(0, max)}\n…[truncated]` : text);
 
-// Calls Gemini in JSON mode and validates the result, retrying once on bad output.
+// Pulls the JSON object out of a reply, tolerating code fences or stray text around it.
+export function extractJSON(raw = "") {
+  const text = raw.replace(/```json|```/g, "").trim();
+  try {
+    return JSON.parse(text);
+  } catch {
+    const start = text.indexOf("{");
+    const end = text.lastIndexOf("}");
+    if (start >= 0 && end > start) return JSON.parse(text.slice(start, end + 1));
+    throw new Error("No JSON object in model reply");
+  }
+}
+
+// Asks the configured model for JSON and validates it, retrying once on bad or transient output.
 async function generateJSON(prompt, schema, { temperature = 0.7 } = {}) {
-  const ai = getClient();
   let lastError;
   for (let attempt = 0; attempt < 2; attempt++) {
     try {
-      const res = await ai.models.generateContent({
-        model: env.geminiModel,
-        contents: prompt,
-        config: { responseMimeType: "application/json", temperature },
-      });
-      const raw = (res.text || "").replace(/```json|```/g, "").trim();
-      return schema.parse(JSON.parse(raw));
+      const raw = await complete(prompt, { temperature });
+      return schema.parse(extractJSON(raw));
     } catch (err) {
+      if (err instanceof HttpError) throw err; // misconfiguration, e.g. missing key
       lastError = err;
-      if (err?.status && err.status < 500 && err.status !== 429) break; // bad key etc.
+      if (err instanceof ProviderError && !err.retryable) break;
     }
   }
-  console.error("Gemini generation failed:", lastError);
+  console.error(`AI generation failed (${providerLabel()}):`, lastError?.message ?? lastError);
+  if (lastError instanceof ProviderError && lastError.status === 429) {
+    throw new HttpError(503, "The AI is busy right now (rate limit). Please try again in a minute.");
+  }
   throw new HttpError(502, "The AI returned an unexpected response. Please try again.");
 }
 

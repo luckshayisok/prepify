@@ -5,9 +5,9 @@ resume-personalized questions — with a progress dashboard, XP, levels, streaks
 
 | Mode | What happens |
 | --- | --- |
-| **MCQ** | Gemini generates questions for any topic and difficulty. Answers are scored on the server, with explanations and a per-topic weak-area breakdown. |
-| **Voice** | A Vapi voice agent interviews you (technical, behavioral or mixed). The transcript is graded by Gemini on communication, technical accuracy, STAR structure, confidence and filler words. |
-| **Coding** | 11 DSA problems in a Monaco editor. JavaScript and Python (via Pyodide) run against hidden tests in a Web Worker in your browser, and Gemini can review the solution. |
+| **MCQ** | The AI model generates questions for any topic and difficulty. Answers are scored on the server, with explanations and a per-topic weak-area breakdown. |
+| **Voice** | A Vapi voice agent interviews you (technical, behavioral or mixed). The transcript is graded by the AI model on communication, technical accuracy, STAR structure, confidence and filler words. |
+| **Coding** | 11 DSA problems in a Monaco editor. JavaScript and Python (via Pyodide) run against hidden tests in a Web Worker in your browser, and the AI model can review the solution. |
 | **Resume** | Upload a PDF (or paste text) plus an optional job description. Every mode can then ask about your real projects and skill gaps. |
 
 ## Project layout
@@ -59,8 +59,11 @@ cd frontend && npm run lint && npm run build
 | `MONGODB_DB` | no | Overrides the database name in the URI |
 | `JWT_SECRET`, `JWT_REFRESH_SECRET` | yes | Long random strings |
 | `GOOGLE_CLIENT_ID` | for Google login | OAuth web client ID (see below) |
-| `GEMINI_API_KEY` | for AI | AI routes return 503 without it |
-| `GEMINI_MODEL` | no | Default `gemini-2.5-flash` |
+| `AI_PROVIDER` | no | `groq` (default), `gemini` or `ollama`. Without it, Groq is used if `GROQ_API_KEY` is set, else Gemini. |
+| `GROQ_API_KEY` | for Groq | Free key from [console.groq.com/keys](https://console.groq.com/keys) |
+| `GROQ_MODEL` | no | Default `openai/gpt-oss-120b` |
+| `GEMINI_API_KEY`, `GEMINI_MODEL` | for Gemini | Default model `gemini-2.5-flash` |
+| `OLLAMA_URL`, `OLLAMA_MODEL` | for Ollama | Defaults `http://localhost:11434`, `llama3.1:8b` |
 | `CORS_ORIGINS` | no | Comma-separated. Default: `http://localhost:5173,https://prepify-chi.vercel.app` |
 | `AI_MOCK` | no | `true` returns canned AI output (dev/tests only) |
 
@@ -71,6 +74,16 @@ cd frontend && npm run lint && npm run build
 | `VITE_API_URL` | Backend URL. Defaults to localhost in dev and `https://prepify-api.onrender.com` in production. |
 | `VITE_VAPI_PUBLIC_KEY` | Needed for voice calls |
 | `VITE_GOOGLE_CLIENT_ID` | Same client ID as the backend. The Google button is hidden when unset. |
+
+## AI providers
+
+The AI features (question generation, voice grading, resume analysis, code review) can run on:
+
+- **Groq** (default): open models on Groq's free tier. Create a key at [console.groq.com/keys](https://console.groq.com/keys) and set `GROQ_API_KEY`.
+- **Gemini**: set `AI_PROVIDER=gemini` and `GEMINI_API_KEY`.
+- **Ollama**: free local models for development. Install [Ollama](https://ollama.com), run `ollama pull llama3.1:8b`, then set `AI_PROVIDER=ollama`.
+
+`GET /api/health` reports which provider is active.
 
 ## Setting up Google sign-in
 
