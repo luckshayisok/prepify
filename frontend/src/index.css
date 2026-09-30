@@ -77,7 +77,20 @@
   }
 }
 
+/* Slow drift of the indigo glow in the dashboard hero. */
+@keyframes hero-shift {
+  0%, 100% { background-position: 100% 0%; }
+  50% { background-position: 70% 30%; }
+}
+
 @layer utilities {
+  /* Midnight: near-black with an indigo glow from the top-right. */
+  .hero-midnight {
+    background-color: #0b0b12;
+    background-image: radial-gradient(120% 120% at 100% 0%, #4338ca 0%, #1e1b4b 42%, #0b0b12 100%);
+    background-size: 140% 140%;
+    animation: hero-shift 16s ease-in-out infinite;
+  }
   .tabular {
     font-variant-numeric: tabular-nums;
   }

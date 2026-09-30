@@ -215,6 +215,15 @@ test("dashboard, history, leaderboard, ownership", async () => {
   assert.equal(dash.data.user.streak.current, 1);
   assert.ok(dash.data.trend.length > 0);
   assert.ok(Object.values(dash.data.activity.counts)[0] >= 1);
+  assert.equal(dash.data.week.series.length, 14);
+  assert.ok(dash.data.week.sessions.value >= 5);
+  assert.equal(dash.data.today.done >= 1, true);
+  assert.equal(dash.data.today.last7.length, 7);
+  assert.ok(dash.data.badgeProgress.length > 0 && dash.data.badgeProgress.length <= 3);
+  assert.ok(dash.data.recommendation.title);
+  assert.equal(dash.data.rank.position, 1);
+  assert.equal(dash.data.problemsTotal, 11);
+  assert.ok(Array.isArray(dash.data.topics));
 
   const history = await api("/interviews?mode=mcq", { token });
   assert.ok(history.data.sessions.every((s) => s.mode === "mcq"));

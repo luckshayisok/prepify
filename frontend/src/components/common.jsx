@@ -28,9 +28,10 @@ export function PageHeader({ title, description, actions, className }) {
   );
 }
 
-export function Section({ title, description, icon: Icon, action, className, children, padded = true }) {
+// bodyClassName styles the content area (e.g. to center content in a stretched card).
+export function Section({ title, description, icon: Icon, action, className, bodyClassName, children, padded = true }) {
   return (
-    <section className={cn("rounded-xl border bg-card shadow-xs", className)}>
+    <section className={cn("flex flex-col rounded-xl border bg-card shadow-xs", className)}>
       {(title || action) && (
         <div className="flex items-center justify-between gap-4 border-b px-5 py-3.5">
           <div className="min-w-0">
@@ -43,7 +44,7 @@ export function Section({ title, description, icon: Icon, action, className, chi
           {action}
         </div>
       )}
-      <div className={cn(padded && "p-5")}>{children}</div>
+      <div className={cn("flex-1", padded && "p-5", bodyClassName)}>{children}</div>
     </section>
   );
 }

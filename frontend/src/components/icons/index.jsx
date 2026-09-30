@@ -335,6 +335,18 @@ export const CalendarDays = createIcon(
   </>
 );
 
+// Stacked sessions.
+export const Layers = createIcon(
+  "Layers",
+  <>
+    <path d="M12 3.75l8.25 4.25L12 12.25 3.75 8z" {...duo} />
+    <path d="M3.75 12L12 16.25 20.25 12M3.75 16l8.25 4.25L20.25 16" />
+  </>
+);
+
+// XP / energy.
+export const Zap = createIcon("Zap", <path d="M13.25 3L5.5 13.25h5.75L10.5 21l8-10.25h-5.75z" {...duo} />);
+
 export const Clock = createIcon(
   "Clock",
   <>

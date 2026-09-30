@@ -1,21 +1,34 @@
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowRight, ArrowUpRight, Brain, CalendarDays, Clock, Code2, FileText, Flame, History, Mic, Target, TrendingDown, TrendingUp, Trophy } from "@/components/icons";
+import { motion } from "framer-motion";
+import { ArrowRight, Award, CalendarDays, Code2, FileText, History, Layers, Target, TrendingUp, Zap } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { api, errorMessage } from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
-import { EmptyState, ErrorState, Page, PageSkeleton, Section, StatCard } from "@/components/common";
-import DashboardHero from "@/components/dashboard/DashboardHero";
+import { ErrorState, Page, PageSkeleton, Section } from "@/components/common";
 import SessionList from "@/components/SessionList";
+import DashboardHero from "@/components/dashboard/DashboardHero";
+import TodayCard from "@/components/dashboard/TodayCard";
+import KpiCard from "@/components/dashboard/KpiCard";
+import UpNextCard from "@/components/dashboard/UpNextCard";
 import ScoreTrend from "@/components/dashboard/ScoreTrend";
+import SkillMap from "@/components/dashboard/SkillMap";
+import ModeBreakdown from "@/components/dashboard/ModeBreakdown";
+import BadgesInProgress from "@/components/dashboard/BadgesInProgress";
 import ActivityHeatmap from "@/components/dashboard/ActivityHeatmap";
-import TopicBars from "@/components/dashboard/TopicBars";
+import RankCard from "@/components/dashboard/RankCard";
 
-const MODES = [
-  { to: "/setup", icon: Brain, title: "MCQ quiz", text: "Timed questions on any topic" },
-  { to: "/voice", icon: Mic, title: "Voice interview", text: "Talk it through, get graded" },
-  { to: "/coding", icon: Code2, title: "Coding round", text: "DSA in JavaScript or Python" },
-];
+// Cards fade up one after another on load.
+const container = { hidden: {}, show: { transition: { staggerChildren: 0.05 } } };
+const item = { hidden: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0, transition: { duration: 0.35, ease: "easeOut" } } };
+
+function Cell({ className, children }) {
+  return (
+    <motion.div variants={item} className={className}>
+      {children}
+    </motion.div>
+  );
+}
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -33,100 +46,119 @@ export default function Dashboard() {
     );
 
   const me = data.user ?? user;
-  const { totals, trend, activity, strongestTopics, weakestTopics, recent } = data;
+  const { totals, trend, activity, recent, week, today, badgeProgress, recommendation, rank, topics, byMode, problemsTotal } = data;
   const isNew = totals.sessions === 0;
+  const series = week.series;
 
   return (
-    <Page>
-      <DashboardHero user={me} isNew={isNew} />
+    <Page className="max-w-7xl">
+      <motion.div variants={container} initial="hidden" animate="show" className="grid grid-cols-1 gap-5 lg:grid-cols-12">
+        <Cell className="lg:col-span-8">
+          <DashboardHero user={me} isNew={isNew} />
+        </Cell>
+        <Cell className="lg:col-span-4">
+          <TodayCard today={today} streak={me.streak} />
+        </Cell>
 
-      <div className="mb-8 grid gap-3 sm:grid-cols-3">
-        {MODES.map(({ to, icon: Icon, title, text }) => (
-          <Link
-            key={to}
-            to={to}
-            className="group flex items-center gap-3.5 rounded-xl border bg-card p-4 shadow-xs transition hover:border-foreground/20 hover:shadow-md"
-          >
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border bg-background text-foreground">
-              <Icon className="h-5 w-5" />
-            </span>
-            <span className="min-w-0 flex-1">
-              <span className="block text-sm font-medium">{title}</span>
-              <span className="block truncate text-xs text-muted-foreground">{text}</span>
-            </span>
-            <ArrowUpRight className="h-4 w-4 text-muted-foreground/60 transition group-hover:text-foreground" />
-          </Link>
-        ))}
-      </div>
-
-      {!me.hasResume && (
-        <Link to="/resume" className="mb-8 flex items-center gap-3 rounded-xl border border-dashed px-4 py-3 text-sm transition hover:bg-accent/50">
-          <FileText className="h-4 w-4 shrink-0 text-muted-foreground" />
-          <span className="flex-1">
-            <span className="font-medium">Personalize your practice.</span>{" "}
-            <span className="text-muted-foreground">Upload your resume to get questions about your real projects (+10% XP).</span>
-          </span>
-          <ArrowRight className="h-4 w-4 text-muted-foreground" />
-        </Link>
-      )}
-
-      {isNew ? (
-        <EmptyState
-          icon={Target}
-          title="No sessions yet"
-          description="Your score trend, weak topics and activity appear here after your first session."
-          action={
-            <Button asChild>
-              <Link to="/setup">Start an MCQ quiz</Link>
-            </Button>
-          }
-        />
-      ) : (
-        <div className="space-y-6">
-          <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-            <StatCard icon={History} label="Sessions" value={totals.sessions} />
-            <StatCard icon={Target} label="Average score" value={`${totals.avgScore ?? 0}%`} hint={`Best ${totals.bestScore ?? 0}%`} />
-            <StatCard icon={Flame} label="Streak" value={`${me.streak.current} day${me.streak.current === 1 ? "" : "s"}`} hint={`Longest ${me.streak.longest}`} />
-            <StatCard icon={Clock} label="Time practiced" value={`${totals.minutesPracticed} min`} hint={`${totals.problemsSolved} problems solved`} />
+        <Cell className="lg:col-span-12">
+          <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+            <KpiCard
+              icon={Layers}
+              label="Sessions this week"
+              value={week.sessions.value}
+              delta={week.sessions.delta}
+              spark={series.map((d) => d.count)}
+              bars
+            />
+            <KpiCard
+              icon={Target}
+              label="Avg score this week"
+              value={week.avgScore.value}
+              format={(v) => `${v}%`}
+              delta={week.avgScore.delta}
+              deltaSuffix=" pts"
+              spark={series.map((d) => d.avgScore)}
+            />
+            <KpiCard icon={Zap} label="XP this week" value={week.xp.value} delta={week.xp.delta} spark={series.map((d) => d.xp)} bars />
+            <KpiCard
+              icon={Code2}
+              label="Problems solved"
+              value={totals.problemsSolved}
+              format={(v) => `${v} / ${problemsTotal}`}
+              footer={`${totals.sessions} sessions all time · ${totals.minutesPracticed} min practiced`}
+            />
           </div>
+        </Cell>
 
-          <div className="grid gap-6 lg:grid-cols-5">
-            <Section title="Score trend" icon={TrendingUp} description={`Last ${trend.length} sessions`} className="lg:col-span-3">
-              {trend.length > 1 ? (
-                <ScoreTrend data={trend} />
-              ) : (
-                <p className="py-20 text-center text-sm text-muted-foreground">Complete one more session to see your trend.</p>
-              )}
-            </Section>
-            <Section
-              title="Recent sessions"
-              icon={History}
-              padded={false}
-              className="lg:col-span-2"
-              action={
+        {!me.hasResume && (
+          <Cell className="lg:col-span-12">
+            <Link
+              to="/resume"
+              className="flex items-center gap-3 rounded-xl border border-dashed px-4 py-3 text-sm transition hover:border-primary/40 hover:bg-primary/5"
+            >
+              <FileText className="h-4 w-4 shrink-0 text-muted-foreground" />
+              <span className="flex-1">
+                <span className="font-medium">Personalize your practice.</span>{" "}
+                <span className="text-muted-foreground">Upload your resume to get questions about your real projects (+10% XP).</span>
+              </span>
+              <ArrowRight className="h-4 w-4 text-muted-foreground" />
+            </Link>
+          </Cell>
+        )}
+
+        <Cell className="lg:col-span-5">
+          <UpNextCard recommendation={recommendation} />
+        </Cell>
+        <Cell className="lg:col-span-7">
+          <Section title="Score trend" icon={TrendingUp} className="h-full">
+            <ScoreTrend data={trend} />
+          </Section>
+        </Cell>
+
+        <Cell className="lg:col-span-4">
+          <Section title="Skill map" icon={Target} description="Accuracy by topic" className="h-full">
+            <SkillMap topics={topics} />
+          </Section>
+        </Cell>
+        <Cell className="lg:col-span-4">
+          <Section title="By mode" icon={Layers} description="Sessions and average score" className="h-full">
+            <ModeBreakdown byMode={byMode} />
+          </Section>
+        </Cell>
+        <Cell className="lg:col-span-4">
+          <Section title="Badges in progress" icon={Award} description="Closest to unlocking" className="h-full">
+            <BadgesInProgress badges={badgeProgress} earnedCount={me.badges.length} />
+          </Section>
+        </Cell>
+
+        <Cell className="lg:col-span-8">
+          <Section title="Activity" icon={CalendarDays} description="Last 6 months" className="h-full" bodyClassName="flex flex-col justify-center">
+            <ActivityHeatmap counts={activity.counts} today={activity.today} days={activity.days} />
+          </Section>
+        </Cell>
+        <Cell className="flex flex-col gap-5 lg:col-span-4">
+          <RankCard rank={rank} />
+          <Section
+            title="Recent sessions"
+            icon={History}
+            padded={false}
+            className="flex-1"
+            action={
+              !isNew && (
                 <Link to="/history" className="text-xs font-medium text-muted-foreground hover:text-foreground">
                   View all
                 </Link>
-              }
-            >
-              <SessionList sessions={recent.slice(0, 5)} />
-            </Section>
-          </div>
-
-          <Section title="Activity" icon={CalendarDays} description="Last 6 months">
-            <ActivityHeatmap counts={activity.counts} today={activity.today} days={activity.days} />
+              )
+            }
+          >
+            {recent.length ? (
+              <SessionList sessions={recent.slice(0, 3)} />
+            ) : (
+              <p className="px-5 py-8 text-center text-sm text-muted-foreground">Your completed sessions will show up here.</p>
+            )}
           </Section>
-
-          <div className="grid gap-6 md:grid-cols-2">
-            <Section title="Needs work" icon={TrendingDown} description="Topics under 70% accuracy">
-              <TopicBars topics={weakestTopics} tone="bg-rose-500" empty="Answer 2+ MCQ questions on a topic to see it here." />
-            </Section>
-            <Section title="Strengths" icon={Trophy} description="Topics at 70% or above">
-              <TopicBars topics={strongestTopics} tone="bg-emerald-500" empty="Your best topics will show up here." />
-            </Section>
-          </div>
-        </div>
-      )}
+        </Cell>
+      </motion.div>
     </Page>
   );
 }

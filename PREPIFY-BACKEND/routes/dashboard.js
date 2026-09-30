@@ -6,6 +6,8 @@ import { requireAuth } from "../middleware/auth.js";
 import { notFound } from "../utils/httpError.js";
 import { BADGES, dayKey } from "../services/gamification.js";
 import { publicUser } from "./auth.js";
+import { PROBLEMS } from "../data/codingProblems.js";
+import { badgeProgress, dailySeries, recommendNext, todayPanel, weekOverWeek } from "../services/insights.js";
 
 const router = express.Router();
 
@@ -21,7 +23,7 @@ router.get("/dashboard", requireAuth, async (req, res) => {
   const since = new Date(Date.now() - HEATMAP_DAYS * 86_400_000);
   const completed = { user: userId, status: "completed" };
 
-  const [totals, byMode, trend, activity, topics, recent] = await Promise.all([
+  const [totals, byMode, trend, activity, topics, recent, hardBest, rankAbove, rankTotal, nextAbove] = await Promise.all([
     InterviewSession.aggregate([
       { $match: completed },
       { $group: { _id: null, count: { $sum: 1 }, avgScore: { $avg: "$score" }, best: { $max: "$score" }, seconds: { $sum: "$durationSec" } } },
@@ -33,7 +35,14 @@ router.get("/dashboard", requireAuth, async (req, res) => {
     InterviewSession.find(completed).sort({ completedAt: -1 }).limit(20).select("mode score completedAt title"),
     InterviewSession.aggregate([
       { $match: { ...completed, completedAt: { $gte: since } } },
-      { $group: { _id: { $dateToString: { format: "%Y-%m-%d", date: "$completedAt" } }, count: { $sum: 1 } } },
+      {
+        $group: {
+          _id: { $dateToString: { format: "%Y-%m-%d", date: "$completedAt" } },
+          count: { $sum: 1 },
+          xp: { $sum: "$xpEarned" },
+          scoreSum: { $sum: "$score" },
+        },
+      },
     ]),
     InterviewSession.aggregate([
       { $match: { ...completed, mode: "mcq" } },
@@ -48,6 +57,11 @@ router.get("/dashboard", requireAuth, async (req, res) => {
       { $match: { _id: { $ne: null } } },
     ]),
     InterviewSession.find(completed).sort({ completedAt: -1 }).limit(8).select("mode score completedAt title xpEarned config"),
+    InterviewSession.findOne({ ...completed, "config.level": "hard" }).sort({ score: -1 }).select("score"),
+    User.countDocuments({ xp: { $gt: user.xp } }),
+    User.countDocuments({ xp: { $gt: 0 } }),
+    // The person just above you on the leaderboard.
+    User.findOne({ xp: { $gt: user.xp } }).sort({ xp: 1 }).select("xp"),
   ]);
 
   const topicStats = topics
@@ -55,6 +69,11 @@ router.get("/dashboard", requireAuth, async (req, res) => {
     .filter((t) => t.total >= 2);
   const sortedTopics = [...topicStats].sort((a, b) => b.accuracy - a.accuracy || b.total - a.total);
   const t0 = totals[0] || { count: 0, avgScore: null, best: null, seconds: 0 };
+  const strongestTopics = sortedTopics.filter((t) => t.accuracy >= 70).slice(0, 5);
+  const weakestTopics = sortedTopics.filter((t) => t.accuracy < 70).reverse().slice(0, 5);
+  const modes = Object.fromEntries(byMode.map((m) => [m._id, m.count]));
+  const rows = Object.fromEntries(activity.map((a) => [a._id, a]));
+  const series = dailySeries(rows, dayKey(), 14);
 
   res.json({
     user: publicUser(user),
@@ -69,8 +88,30 @@ router.get("/dashboard", requireAuth, async (req, res) => {
     trend: trend.reverse().map((s) => ({ id: s._id, mode: s.mode, score: s.score, date: s.completedAt, title: s.title })),
     activity: { today: dayKey(), days: HEATMAP_DAYS, counts: Object.fromEntries(activity.map((a) => [a._id, a.count])) },
     // Split at 70% so a topic never shows up in both lists.
-    strongestTopics: sortedTopics.filter((t) => t.accuracy >= 70).slice(0, 5),
-    weakestTopics: sortedTopics.filter((t) => t.accuracy < 70).reverse().slice(0, 5),
+    strongestTopics,
+    weakestTopics,
+    // Up to 8 most-practised topics, for the skill map.
+    topics: [...topicStats].sort((a, b) => b.total - a.total).slice(0, 8),
+    week: { series, ...weekOverWeek(series) },
+    today: todayPanel({ series }),
+    badgeProgress: badgeProgress({
+      user,
+      stats: { completedSessions: t0.count, modes, bestScore: t0.best, bestHardScore: hardBest?.score },
+    }).slice(0, 3),
+    recommendation: recommendNext({
+      weakestTopics,
+      strongestTopics,
+      modes,
+      solved: user.solvedProblems,
+      problems: PROBLEMS,
+      hasSessions: t0.count > 0,
+    }),
+    rank: {
+      position: user.xp > 0 ? rankAbove + 1 : null,
+      total: rankTotal,
+      xpToNext: nextAbove ? nextAbove.xp - user.xp + 1 : 0,
+    },
+    problemsTotal: PROBLEMS.length,
     recent: recent.map((s) => ({
       id: s._id,
       mode: s.mode,
