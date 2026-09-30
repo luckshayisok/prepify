@@ -9,7 +9,7 @@ import { ErrorState, Page, PageSkeleton, Section } from "@/components/common";
 import SessionList from "@/components/SessionList";
 import DashboardHero from "@/components/dashboard/DashboardHero";
 import TodayCard from "@/components/dashboard/TodayCard";
-import KpiCard from "@/components/dashboard/KpiCard";
+import KpiCard, { ScoreMeter, Segments, WeekBars } from "@/components/dashboard/KpiCard";
 import UpNextCard from "@/components/dashboard/UpNextCard";
 import ScoreTrend from "@/components/dashboard/ScoreTrend";
 import SkillMap from "@/components/dashboard/SkillMap";
@@ -49,6 +49,8 @@ export default function Dashboard() {
   const { totals, trend, activity, recent, week, today, badgeProgress, recommendation, rank, topics, byMode, problemsTotal } = data;
   const isNew = totals.sessions === 0;
   const series = week.series;
+  const last7 = series.slice(-7);
+  const prevAvg = week.avgScore.value != null && week.avgScore.delta != null ? week.avgScore.value - week.avgScore.delta : null;
 
   return (
     <Page className="max-w-7xl">
@@ -68,8 +70,7 @@ export default function Dashboard() {
               label="Sessions this week"
               value={week.sessions.value}
               delta={week.sessions.delta}
-              spark={series.map((d) => d.count)}
-              bars
+              visual={<WeekBars days={last7.map((d) => ({ day: d.day, value: d.count }))} format={(v) => `${v} session${v === 1 ? "" : "s"}`} />}
             />
             <KpiCard
               to="/history"
@@ -79,16 +80,24 @@ export default function Dashboard() {
               format={(v) => `${v}%`}
               delta={week.avgScore.delta}
               deltaSuffix=" pts"
-              spark={series.map((d) => d.avgScore)}
+              visual={<ScoreMeter value={week.avgScore.value} previous={prevAvg} />}
             />
-            <KpiCard to="/history" icon={Zap} label="XP this week" value={week.xp.value} delta={week.xp.delta} spark={series.map((d) => d.xp)} bars />
+            <KpiCard
+              to="/history"
+              icon={Zap}
+              label="XP this week"
+              value={week.xp.value}
+              delta={week.xp.delta}
+              visual={<WeekBars days={last7.map((d) => ({ day: d.day, value: d.xp }))} format={(v) => `${v} XP`} />}
+            />
             <KpiCard
               to="/coding"
               icon={Code2}
               label="Problems solved"
               value={totals.problemsSolved}
               format={(v) => `${v} / ${problemsTotal}`}
-              footer={`${totals.sessions} sessions all time · ${totals.minutesPracticed} min practiced`}
+              footer={totals.problemsSolved === problemsTotal ? "Every problem solved" : `${problemsTotal - totals.problemsSolved} left to solve`}
+              visual={<Segments done={totals.problemsSolved} total={problemsTotal} />}
             />
           </div>
         </Cell>
@@ -119,7 +128,7 @@ export default function Dashboard() {
         </Cell>
 
         <Cell className="lg:col-span-4">
-          <Section title="Skill map" icon={Target} description="Accuracy by topic" className="h-full">
+          <Section title="Skill map" icon={Target} description="Topics ranked by accuracy · click to practice" className="h-full">
             <SkillMap topics={topics} />
           </Section>
         </Cell>

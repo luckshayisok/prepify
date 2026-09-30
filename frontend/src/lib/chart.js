@@ -36,9 +36,5 @@ export function monotonePath(points) {
   return d;
 }
 
-// Point on a circle, with angle 0 at 12 o'clock going clockwise.
-export function polar(cx, cy, r, angle) {
-  return [cx + r * Math.sin(angle), cy - r * Math.cos(angle)];
-}
 
 export const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
