@@ -1,0 +1,46 @@
+# Runs the backend tests on every push to main that touches the backend,
+# and triggers a Render deploy only if they pass.
+name: Backend — test and deploy
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "PREPIFY-BACKEND/**"
+      - ".github/workflows/deploy-backend.yml"
+  workflow_dispatch: # "Run workflow" button in the Actions tab
+
+concurrency:
+  group: backend-deploy
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: PREPIFY-BACKEND
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: PREPIFY-BACKEND/package-lock.json
+      - run: npm ci
+      - run: npm test
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Render deploy
+        env:
+          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+        run: |
+          if [ -z "$RENDER_DEPLOY_HOOK_URL" ]; then
+            echo "::warning::RENDER_DEPLOY_HOOK_URL secret is not set, so nothing was deployed."
+            exit 0
+          fi
+          curl -fsS -X POST "$RENDER_DEPLOY_HOOK_URL" > /dev/null
+          echo "Render deploy triggered."
