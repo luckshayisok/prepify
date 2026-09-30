@@ -7,6 +7,14 @@ export function Sparkline({ values, className, bars = false }) {
   const gid = useId();
   const W = 100;
   const H = 32;
+  // No data yet: a faint dashed baseline instead of a misleading flat line at zero.
+  if (values.every((v) => v == null || v === 0)) {
+    return (
+      <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" className={cn("h-8 w-full", className)} aria-hidden="true">
+        <line x1="0" x2={W} y1={H - 2} y2={H - 2} className="stroke-border" strokeWidth="1.5" strokeDasharray="3 3" vectorEffect="non-scaling-stroke" />
+      </svg>
+    );
+  }
   const nums = values.map((v) => v ?? 0);
   const max = Math.max(1, ...nums);
 

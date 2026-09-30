@@ -6,6 +6,7 @@ import { Tooltip } from "@/components/ui/tooltip";
 import { useAuth } from "@/context/AuthContext";
 import { cn } from "@/lib/utils";
 import UserMenu from "./UserMenu";
+import ThemeToggle from "./ThemeToggle";
 
 const NAV = [
   { items: [{ to: "/dashboard", label: "Dashboard", icon: LayoutDashboard }] },
@@ -83,6 +84,7 @@ function SidebarContent() {
             {user.progress.current} / {user.progress.needed} XP to level {user.level + 1}
           </p>
         </div>
+        <ThemeToggle />
         <UserMenu />
       </div>
     </div>
