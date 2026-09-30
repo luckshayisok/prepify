@@ -68,7 +68,7 @@ export default function Setup() {
 
   return (
     <Page className="max-w-2xl">
-      <PageHeader title="MCQ quiz" description="AI-generated, timed, and scored with a topic-by-topic breakdown." />
+      <PageHeader crumbs={[{ label: "Practice", to: "/practice" }, { label: "MCQ quiz" }]} title="MCQ quiz" description="AI-generated, timed, and scored with a topic-by-topic breakdown." />
 
       <form onSubmit={handleSubmit} className="space-y-7 rounded-xl border bg-card p-5 shadow-xs sm:p-7">
         <Field label="Topic" htmlFor="domain" hint="Anything works — e.g. “Kubernetes networking” or “Redux Toolkit”.">

@@ -63,6 +63,7 @@ export default function Dashboard() {
         <Cell className="lg:col-span-12">
           <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
             <KpiCard
+              to="/history"
               icon={Layers}
               label="Sessions this week"
               value={week.sessions.value}
@@ -71,6 +72,7 @@ export default function Dashboard() {
               bars
             />
             <KpiCard
+              to="/history"
               icon={Target}
               label="Avg score this week"
               value={week.avgScore.value}
@@ -79,8 +81,9 @@ export default function Dashboard() {
               deltaSuffix=" pts"
               spark={series.map((d) => d.avgScore)}
             />
-            <KpiCard icon={Zap} label="XP this week" value={week.xp.value} delta={week.xp.delta} spark={series.map((d) => d.xp)} bars />
+            <KpiCard to="/history" icon={Zap} label="XP this week" value={week.xp.value} delta={week.xp.delta} spark={series.map((d) => d.xp)} bars />
             <KpiCard
+              to="/coding"
               icon={Code2}
               label="Problems solved"
               value={totals.problemsSolved}

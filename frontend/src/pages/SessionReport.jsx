@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-  ArrowLeft,
   ArrowRight,
   Bot,
   Brain,
@@ -19,7 +18,7 @@ import {
   X,
 } from "@/components/icons";
 import { Button } from "@/components/ui/button";
-import { ErrorState, LevelBadge, ModeBadge, Page, PageSkeleton, ProgressBar, ScoreRing, Section, SegmentedControl } from "@/components/common";
+import { Breadcrumbs, ErrorState, LevelBadge, ModeBadge, Page, PageSkeleton, ProgressBar, ScoreRing, Section, SegmentedControl } from "@/components/common";
 import RewardsDialog from "@/components/RewardsDialog";
 import { api, errorMessage } from "@/lib/api";
 import { formatDate, formatDuration, scoreTone, scoreVerdict } from "@/lib/format";
@@ -329,9 +328,9 @@ export default function SessionReport() {
     <Page className="max-w-4xl">
       <RewardsDialog rewards={rewards} score={session.score} open={Boolean(rewards)} onOpenChange={(o) => !o && closeRewards()} />
 
-      <Link to="/history" className="mb-6 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
-        <ArrowLeft className="h-4 w-4" /> History
-      </Link>
+      <div className="mb-4">
+        <Breadcrumbs crumbs={[{ label: "History", to: "/history" }, { label: session.title }]} />
+      </div>
 
       <section className="mb-6 flex flex-col items-center gap-6 rounded-xl border bg-card p-6 shadow-xs sm:flex-row sm:p-7">
         <ScoreRing score={session.score} />

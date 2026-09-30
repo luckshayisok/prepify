@@ -172,6 +172,7 @@ export default function VoiceInterview() {
     return (
       <Page className="max-w-2xl">
         <PageHeader
+          crumbs={[{ label: "Practice", to: "/practice" }, { label: "Voice interview" }]}
           title="Voice interview"
           description="A realistic spoken interview with an AI. When you hang up you get scores for communication, accuracy, structure and confidence."
         />
@@ -186,7 +187,10 @@ export default function VoiceInterview() {
 
   return (
     <Page className="max-w-5xl">
-      <PageHeader title={prepared.session.title} description="Your interviewer is Maya. Answer out loud, as you would in a real interview." />
+      <PageHeader
+        crumbs={[{ label: "Practice", to: "/practice" }, { label: "Voice interview", to: "/voice" }, { label: "Live" }]}
+        title={prepared.session.title}
+        description="Your interviewer is Maya. Answer out loud, as you would in a real interview." />
       <div className="grid gap-6 lg:grid-cols-5">
         <section className="flex flex-col items-center rounded-xl border bg-card p-6 text-center shadow-xs lg:col-span-2">
           <p className="tabular text-sm font-medium text-muted-foreground">{formatClock(elapsed)}</p>

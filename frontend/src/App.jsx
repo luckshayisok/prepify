@@ -1,10 +1,11 @@
 import { lazy, Suspense } from "react";
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Navigate, Outlet, Route, Routes } from "react-router-dom";
 import { GuestOnlyRoute, ProtectedRoute } from "./components/ProtectedRoute";
 import { PageSkeleton, Spinner } from "./components/common";
 import { Toaster } from "./components/ui/toaster";
 import AppLayout from "./components/layout/AppLayout";
 import PublicLayout from "./components/layout/PublicLayout";
+import { CommandPaletteProvider } from "./components/layout/CommandPalette";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import SignUp from "./pages/SignUp";
@@ -22,9 +23,17 @@ const CodingList = lazy(() => import("./pages/CodingList"));
 const CodingProblem = lazy(() => import("./pages/CodingProblem"));
 const Leaderboard = lazy(() => import("./pages/Leaderboard"));
 const Settings = lazy(() => import("./pages/Settings"));
+const Practice = lazy(() => import("./pages/Practice"));
 
 const lazyPage = (el) => <Suspense fallback={<PageSkeleton />}>{el}</Suspense>;
 const lazyFocus = (el) => <Suspense fallback={<Spinner />}>{el}</Suspense>;
+
+// Ctrl/Cmd+K search is available on every signed-in page, including focus screens.
+const WithPalette = () => (
+  <CommandPaletteProvider>
+    <Outlet />
+  </CommandPaletteProvider>
+);
 
 export default function App() {
   return (
@@ -39,8 +48,10 @@ export default function App() {
         </Route>
 
         <Route element={<ProtectedRoute />}>
+          <Route element={<WithPalette />}>
           <Route element={<AppLayout />}>
             <Route path="/dashboard" element={lazyPage(<Dashboard />)} />
+            <Route path="/practice" element={lazyPage(<Practice />)} />
             <Route path="/setup" element={lazyPage(<Setup />)} />
             <Route path="/voice" element={lazyPage(<VoiceInterview />)} />
             <Route path="/coding" element={lazyPage(<CodingList />)} />
@@ -54,6 +65,7 @@ export default function App() {
           {/* Focus screens: full width, no sidebar */}
           <Route path="/interview/:id" element={lazyFocus(<Quiz />)} />
           <Route path="/coding/:slug" element={lazyFocus(<CodingProblem />)} />
+          </Route>
         </Route>
 
         <Route element={<PublicLayout />}>

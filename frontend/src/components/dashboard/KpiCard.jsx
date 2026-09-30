@@ -1,4 +1,5 @@
 import { useId } from "react";
+import { Link } from "react-router-dom";
 import { useCountUp } from "@/hooks/useCountUp";
 import { cn } from "@/lib/utils";
 
@@ -69,10 +70,14 @@ function Delta({ value, suffix = "" }) {
  * KPI with an animated number, a week-over-week delta and a 14-day sparkline.
  * `format` turns the (animated) number into the displayed string.
  */
-export default function KpiCard({ icon: Icon, label, value, format = (v) => v, delta, deltaSuffix, deltaLabel = "vs last week", spark, bars, footer }) {
+export default function KpiCard({ icon: Icon, label, value, format = (v) => v, delta, deltaSuffix, deltaLabel = "vs last week", spark, bars, footer, to }) {
   const shown = useCountUp(value);
+  const Wrapper = to ? Link : "div";
   return (
-    <div className="flex flex-col rounded-xl border bg-card p-4 shadow-xs sm:p-5">
+    <Wrapper
+      {...(to ? { to } : {})}
+      className={cn("flex flex-col rounded-xl border bg-card p-4 shadow-xs sm:p-5", to && "transition hover:border-foreground/20 hover:shadow-md")}
+    >
       <div className="flex items-center justify-between text-xs font-medium text-muted-foreground">
         {label}
         {Icon && <Icon className="h-4 w-4" />}
@@ -86,6 +91,6 @@ export default function KpiCard({ icon: Icon, label, value, format = (v) => v, d
         )}
       </div>
       {spark && <Sparkline values={spark} bars={bars} className="mt-3" />}
-    </div>
+    </Wrapper>
   );
 }

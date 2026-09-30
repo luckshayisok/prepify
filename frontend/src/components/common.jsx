@@ -16,10 +16,36 @@ export function Page({ className, children }) {
   return <div className={cn("mx-auto w-full max-w-6xl px-4 py-8 sm:px-8 lg:py-10", className)}>{children}</div>;
 }
 
-export function PageHeader({ title, description, actions, className }) {
+// crumbs: [{ label, to }] shown above the title, e.g. Practice › MCQ quiz.
+export function Breadcrumbs({ crumbs }) {
+  if (!crumbs?.length) return null;
+  return (
+    <nav aria-label="Breadcrumb" className="mb-2">
+      <ol className="flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
+        {crumbs.map((c, i) => (
+          <li key={c.label} className="flex items-center gap-1.5">
+            {i > 0 && <span aria-hidden="true">›</span>}
+            {c.to ? (
+              <Link to={c.to} className="transition hover:text-foreground">
+                {c.label}
+              </Link>
+            ) : (
+              <span aria-current="page" className="text-foreground">
+                {c.label}
+              </span>
+            )}
+          </li>
+        ))}
+      </ol>
+    </nav>
+  );
+}
+
+export function PageHeader({ title, description, actions, className, crumbs }) {
   return (
     <div className={cn("mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between", className)}>
       <div className="min-w-0">
+        <Breadcrumbs crumbs={crumbs} />
         <h1 className="text-2xl font-semibold sm:text-[28px]">{title}</h1>
         {description && <p className="mt-1.5 max-w-2xl text-sm text-muted-foreground sm:text-[15px]">{description}</p>}
       </div>

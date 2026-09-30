@@ -28,6 +28,7 @@ export default function CodingList() {
   return (
     <Page className="max-w-4xl">
       <PageHeader
+        crumbs={[{ label: "Practice", to: "/practice" }, { label: "Coding round" }]}
         title="Coding round"
         description="Interview-style DSA problems in JavaScript or Python. Code runs against hidden tests in your browser; XP is awarded on your first full solve."
       />
